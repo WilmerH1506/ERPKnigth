@@ -8,10 +8,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3030;
+const PORT = 3000;
 
 
-mongoose.connect(process.env.DB_URL)
+mongoose.connect("mongodb+srv://wilmerhy2005:clinica123@crud-analisis.xa4ap.mongodb.net/?retryWrites=true&w=majority&appName=CRUD-Analisis")
 
 app.use(cors({ origin: 'http://localhost:4000'}));
 app.use(express.json());
