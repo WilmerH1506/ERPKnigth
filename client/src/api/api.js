@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const api = "http://localhost:3000/api";
+const api = "https://erp-knigth-c00vpx39q-wilmerh1506s-projects.vercel.app/api";
 
 export const getPatients = async () => {
     const response = await axios.get(`${api}/patients`);
