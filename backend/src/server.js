@@ -3,10 +3,8 @@ import express from "express";
 import router from "./routes/router.js";
 import morgan from "morgan";
 import cors from "cors";
-import dotenv from "dotenv";
 
 
-dotenv.config();
 const app = express();
 const PORT = 3000;
 
