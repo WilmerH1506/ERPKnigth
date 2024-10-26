@@ -3,13 +3,15 @@ import express from "express";
 import router from "./routes/router.js";
 import morgan from "morgan";
 import cors from "cors";
+import dotenv from "dotenv";
 
 
+dotenv.config();
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3030;
 
 
-mongoose.connect("mongodb+srv://wilmerhy2005:clinica123@crud-analisis.xa4ap.mongodb.net/?retryWrites=true&w=majority&appName=CRUD-Analisis")
+mongoose.connect(process.env.DB_URL)
 
 app.use(cors({ origin: 'http://localhost:4000'}));
 app.use(express.json());
