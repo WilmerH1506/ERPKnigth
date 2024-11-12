@@ -54,6 +54,11 @@ header {
   text-decoration: none; 
 }
 
+.nav-button.active {
+  color: #ffffff;
+  background-color: #0040D7; 
+}
+
 .nav-button:hover {
   color: #ffffff; 
 }

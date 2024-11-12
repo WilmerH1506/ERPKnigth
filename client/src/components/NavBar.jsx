@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; 
-import { FaHome, FaUserFriends, FaCalendarAlt, FaBox } from 'react-icons/fa';
+import { NavLink } from 'react-router-dom';  
+import { FaHome, FaUserFriends, FaCalendarAlt, FaBox, FaBook, FaChartLine } from 'react-icons/fa';
 import logo from '../assets/Logo.jpg';
 import './NavBar.css';
 
@@ -13,28 +13,34 @@ const NavBar = () => {
       </div>
       <ul className="navbar-buttons">
         <li>
-          <Link to="/" className="nav-button">
+          <NavLink to="/" className="nav-button" activeClassName="active">
             <FaHome className="nav-icon" />
             Dashboard
-          </Link>
+          </NavLink>
         </li>
         <li>
-          <Link to="/patients" className="nav-button">
+          <NavLink to="/patients" className="nav-button" activeClassName="active">
             <FaUserFriends className="nav-icon" />
             Pacientes
-          </Link>
+          </NavLink>
         </li>
         <li>
-          <Link to="/dates" className="nav-button">
+          <NavLink to="/dates" className="nav-button" activeClassName="active">
             <FaCalendarAlt className="nav-icon" />
             Citas
-          </Link>
+          </NavLink>
         </li>
         <li>
-          <Link to="/inventory" className="nav-button">
+          <NavLink to="/inventory" className="nav-button" activeClassName="active">
             <FaBox className="nav-icon" />
             Inventario
-          </Link>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/reports" className="nav-button" activeClassName="active">
+            <FaChartLine className="nav-icon" />
+            Reportes
+          </NavLink>
         </li>
       </ul>
     </nav>

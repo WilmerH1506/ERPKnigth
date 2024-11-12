@@ -6,7 +6,7 @@ const Modal = ({ isOpen, onClose, inputs, title, onSubmit, currentPatient }) => 
   const { register, handleSubmit, reset } = useForm();
 
   useEffect(() => {
-    reset(currentPatient); // Actualiza los valores del formulario cuando cambia currentPatient
+    reset(currentPatient); 
   }, [currentPatient, reset]);
 
   if (!isOpen) return null;
@@ -24,11 +24,22 @@ const Modal = ({ isOpen, onClose, inputs, title, onSubmit, currentPatient }) => 
           {inputs.map((input, index) => (
             <div key={index} className="form-group">
               <label>{input.label}</label>
-              <input
-                type={input.type || "text"}
-                placeholder={input.placeholder || ""}
-                {...register(input.name)} 
-              />
+              {input.type === 'select' ? (
+                <select {...register(input.name)} defaultValue={currentPatient[input.name]}>
+                  <option value="">Seleccione sexo</option>
+                  {input.options.map((option, idx) => (
+                    <option key={idx} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={input.type || "text"}
+                  placeholder={input.placeholder || ""}
+                  {...register(input.name)} 
+                />
+              )}
             </div>
           ))}
           <div className="modal-footer">

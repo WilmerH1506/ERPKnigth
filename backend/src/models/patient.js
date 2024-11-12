@@ -6,6 +6,10 @@ const patientSchema = new mongoose.Schema({
         required: true,
         trim : true
     },
+    Sexo: {
+        type: String,
+        required: true
+    },
     DNI: {
         type: String,
         required: true

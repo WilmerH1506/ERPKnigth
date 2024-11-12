@@ -9,11 +9,11 @@ import './Patients.css';
 
 const Patients = () => {
   const [patients, setPatients] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Estado de carga
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false); 
   const [modalTitle, setModalTitle] = useState('');
-  const [currentPatient, setCurrentPatient] = useState({ Nombre: '', DNI: '', Telefono: '', Correo: '' });
+  const [currentPatient, setCurrentPatient] = useState({ Nombre: '', Sexo: '' ,DNI: '', Telefono: '', Correo: '' });
   const [patientToDelete, setPatientToDelete] = useState(null); 
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const Patients = () => {
       } catch (error) {
         console.error('Error fetching patients:', error);
       } finally {
-        setIsLoading(false); // Cambia el estado a false después de la carga
+        setIsLoading(false); 
       }
     };
 
@@ -37,7 +37,7 @@ const Patients = () => {
       setCurrentPatient(patient);
     } else {
       setModalTitle('Paciente Nuevo');
-      setCurrentPatient({ Nombre: '', DNI: '', Telefono: '', Correo: '' });
+      setCurrentPatient({ Nombre: '', Sexo: '' ,DNI: '', Telefono: '', Correo: '' });
     }
     setIsModalOpen(true);
   };
@@ -71,19 +71,18 @@ const Patients = () => {
   const handleSubmit = async (data) => {
     try {
       if (currentPatient._id) { 
-        console.log("Datos enviados:", data); 
         const updatedPatient = await editPatient({ ...data, _id: currentPatient._id });
         setPatients(
           patients.map((patient) => (patient._id === updatedPatient._id ? updatedPatient : patient))
         );
         toast.success('Paciente editado con éxito!');
       } else {
-        // Si no tiene _id, se trata de un nuevo registro
+       
         const newPatient = await registerPatients(data);
         setPatients([...patients, newPatient]);
         toast.success('Paciente agregado con éxito!');
       }
-      closeModal(); // Cierra el modal después de agregar o editar
+      closeModal(); 
     } catch (error) {
       console.error('Error al agregar o editar el paciente:', error);
       toast.error('Error al guardar el paciente.');
@@ -95,6 +94,13 @@ const Patients = () => {
       label: 'Nombre',
       name: 'Nombre',
       placeholder: 'Ingrese el nombre',
+    },
+    {
+      label: 'Sexo',
+      name: 'Sexo',
+      placeholder: 'Seleccione sexo',
+      type: 'select', 
+      options: ['Masculino', 'Femenino', '69 tipos de gays'], 
     },
     {
       label: 'DNI',
@@ -113,6 +119,8 @@ const Patients = () => {
       placeholder: 'Ingrese el correo',
     },
   ];
+
+  {/* Inicia HTML*/}
 
   return (
     <div className="patients-container">
@@ -136,6 +144,7 @@ const Patients = () => {
           <thead>
             <tr>
               <th>Nombre</th>
+              <th>Sexo</th>
               <th>DNI</th>
               <th>Teléfono</th>
               <th>Correo</th>
@@ -146,6 +155,7 @@ const Patients = () => {
             {patients.map((patient) => (
               <tr key={patient._id}>
                 <td>{patient.Nombre}</td>
+                <td>{patient.Sexo}</td>
                 <td>{patient.DNI}</td>
                 <td>{patient.Telefono}</td>
                 <td>{patient.Correo}</td>

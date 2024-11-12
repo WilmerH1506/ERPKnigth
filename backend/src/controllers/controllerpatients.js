@@ -12,9 +12,9 @@ export const patients = async (req, res) => {
 
 export const registerpatients = async (req, res) => {
     
-    const {Nombre,DNI,Telefono,Correo} = req.body;
+    const {Nombre,Sexo,DNI,Telefono,Correo} = req.body;
 
-    const newPatient = new Patient({Nombre,DNI,Telefono,Correo});
+    const newPatient = new Patient({Nombre,Sexo,DNI,Telefono,Correo});
 
     try {
         await newPatient.save();
@@ -42,12 +42,12 @@ export const deletePatient = async (req, res) => {
 };
 
 export const editPatient = async (req, res) => {
-    const { _id, Nombre, DNI, Telefono, Correo } = req.body;
+    const { _id, Nombre,Sexo ,DNI, Telefono, Correo } = req.body;
     
     try {
         const patient = await
         Patient
-            .findByIdAndUpdate(_id, { Nombre, DNI, Telefono, Correo }, { new: true });
+            .findByIdAndUpdate(_id, { Nombre, Sexo ,DNI, Telefono, Correo }, { new: true });
 
         if (!patient) {
             return res.status(404).json({ message: 'Patient not found' });
