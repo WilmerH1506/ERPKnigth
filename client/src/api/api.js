@@ -41,3 +41,24 @@ export const editProduct = async (data) => {
     const response = await axios.put(`${api}/editproduct`, data);
     return response.data;
 }
+
+export const getDates = async () => {
+    const response = await axios.get(`${api}/dates`);
+    return response.data;
+}
+
+export const registerDate = async (data) => {
+    const response = await axios.post(`${api}/registerdate`, data);
+    return response.data;
+}
+
+export const deleteDate = async (id) => {
+    const response = await axios.post(`${api}/deletedate`, { id });
+    return response.data;
+}
+
+export const editDate = async (data) => {
+    const response = await axios.put(`${api}/editdate`, data);
+    return response.data;
+}
+

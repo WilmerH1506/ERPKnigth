@@ -6,7 +6,6 @@ import ConfirmationModal from './confirmModal';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 import './Inventory.css';
-import { set } from 'mongoose';
 
 const Inventory = () => {
   const [inventory, setInventory] = useState([]);
@@ -41,7 +40,10 @@ const Inventory = () => {
   const openModal = (product = null) => {
     if (product) {
       setModalTitle('Editar Producto');
-      setCurrentProduct(product);
+      setCurrentProduct({
+        ...product,
+        Caducidad: formatDate(product.Caducidad),
+      });
     } else {
       setModalTitle('Producto Nuevo');
       setCurrentProduct({
@@ -115,6 +117,12 @@ const Inventory = () => {
     }
   }
 
+  const formatDate = (isoDate) => {
+    if (!isoDate) return '';
+    const date = new Date(isoDate);
+    return date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+  };
+
   const inputs = [
     {
       label: 'Producto',
@@ -186,7 +194,7 @@ const Inventory = () => {
                 <td>{product.Producto}</td>
                 <td>{product.Descripcion}</td>
                 <td>{product.Distribuidor}</td>
-                <td>{product.Caducidad}</td>
+                <td>{formatDate(product.Caducidad)}</td>
                 <td>{product.Cantidad}</td>
                 <td>{product.Precio}</td>
                 <td>{(product.Cantidad * product.Precio).toFixed(2)}</td>

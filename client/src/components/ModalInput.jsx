@@ -1,13 +1,22 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import './Modal.css'; 
+import './Modal.css';
 
-const Modal = ({ isOpen, onClose, inputs, title, onSubmit, currentPatient }) => {
+const Modal = ({
+  isOpen = false,
+  onClose = () => {},
+  inputs = [],
+  title = "",
+  onSubmit = () => {},
+  currentPatient = {},
+}) => {
   const { register, handleSubmit, reset } = useForm();
 
-  useEffect(() => {
-    reset(currentPatient); 
-  }, [currentPatient, reset]);
+ useEffect(() => {
+  if (currentPatient && Object.keys(currentPatient).length > 0) {
+    reset(currentPatient); // Sincronizar el formulario con 'currentPatient'
+  }
+}, [currentPatient, reset]);
 
   if (!isOpen) return null;
 
@@ -24,9 +33,12 @@ const Modal = ({ isOpen, onClose, inputs, title, onSubmit, currentPatient }) => 
           {inputs.map((input, index) => (
             <div key={index} className="form-group">
               <label>{input.label}</label>
-              {input.type === 'select' ? (
-                <select {...register(input.name)} defaultValue={currentPatient[input.name]}>
-                  <option value="">Seleccione sexo</option>
+              {input.type === 'select' && input.options ? (
+                <select
+                  {...register(input.name)}
+                  defaultValue={currentPatient?.[input.name] || ""}
+                >
+                  <option value="">{input.placeholder || "Seleccione una opción"}</option>
                   {input.options.map((option, idx) => (
                     <option key={idx} value={option}>
                       {option}
@@ -37,7 +49,8 @@ const Modal = ({ isOpen, onClose, inputs, title, onSubmit, currentPatient }) => 
                 <input
                   type={input.type || "text"}
                   placeholder={input.placeholder || ""}
-                  {...register(input.name)} 
+                  {...register(input.name)}
+                  defaultValue={currentPatient?.[input.name] || ""}
                 />
               )}
             </div>
