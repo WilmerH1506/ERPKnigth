@@ -25,12 +25,12 @@ const DashboardCards = () => {
     return (
       <div className="dashboard-cards">
         {cards.map((card, index) => (
-          <div className="card" key={index}>
-            <div className="card-content">
+          <div className="dcard" key={index}>
+            <div className="dcard-content">
               <span>{card.title}</span>
               <h2>{card.value}</h2>
             </div>
-            <div className="card-icon">
+            <div className="dcard-icon">
               {card.icon}
             </div>
           </div>

@@ -8,10 +8,13 @@
     align-items: center;
     margin-bottom: 1.5rem;
   }
+
+  
   
   h1 {
     font-size: 2rem;
     font-weight: bold;
+    margin-top: -30px;
   }
   
   .new-patient-button {
@@ -117,6 +120,70 @@
     justify-content: center;
     z-index: 1000; 
   }
+
+  /* Estilos generales para los botones de paginación */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.pagination-button {
+  background-color: #15999B; 
+  color: white; 
+  padding: 10px 20px; 
+  border: none;
+  border-radius: 5px; 
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.pagination-button:hover {
+  background-color: #45a049; 
+  transform: scale(1.05); 
+}
+
+.pagination-button:disabled {
+  background-color: #ddd; 
+  cursor: not-allowed; 
+}
+
+.page-info {
+  font-size: 16px;
+  color: #333;
+}
+
+.page-info {
+  margin: 0 10px;
+}
+
+.search-bar {
+  margin-top: 10px;
+  display: flex;
+  justify-content: left;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  padding: 10px;
+  width: 80%;
+  max-width: 400px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.3s ease;
+  margin-top: -20px;
+}
+
+.search-bar input:focus {
+  border-color: #007bff;
+}
+
   
   .spinner {
     border: 8px solid rgba(255, 255, 255, 0.3);

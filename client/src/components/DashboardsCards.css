@@ -6,7 +6,7 @@
     align-items: center; 
   }
   
-  .card {
+  .dcard {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -19,22 +19,22 @@
     height: 130px;
   }
   
-  .card-content {
+  .dcard-content {
     display: flex;
     flex-direction: column;
   }
   
-  .card-content span {
+  .dcard-content span {
     font-size: 2.5rem;
     color: #666;
   }
   
-  .card-content h2 {
+  .dcard-content h2 {
     font-size: 2rem; 
     color: #333;
   }
   
-  .card-icon {
+  .dcard-icon {
     font-size: 2rem;
     color: #888;
   }
