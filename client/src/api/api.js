@@ -7,6 +7,11 @@ export const getPatients = async () => {
     return response.data; 
   };
 
+export const getTreatments = async () => {
+    const response = await axios.get(`${api}/treatments`);
+    return response.data;
+}  
+
 export const registerPatients = async (data) => {
     const response = await axios.post(`${api}/registerpatients`, data);
     return response.data;

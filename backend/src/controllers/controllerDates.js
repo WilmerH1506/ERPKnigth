@@ -11,9 +11,9 @@ export const dates = async (req,res) => {
 
 export const RegisterDates = async (req,res) => {
    try {
-     const {Fecha, Hora_Ingreso,Hora_Salida,Paciente, Tratamiento,Odontologo,Estado} = req.body
+     const {Fecha, Hora_Ingreso,Hora_Salida,Paciente, Tratamiento,Descripcion,Odontologo,Estado} = req.body
      
-     const Newdate =  new Dates({Fecha,Hora_Ingreso,Hora_Salida,Paciente,Tratamiento,Odontologo,Estado})
+     const Newdate =  new Dates({Fecha,Hora_Ingreso,Hora_Salida,Paciente,Tratamiento,Descripcion,Odontologo,Estado})
      
      await Newdate.save()
      res.status(201).json(Newdate)
@@ -45,9 +45,9 @@ export const DeleteDate = async (req,res) =>
 export const EditDate = async (req,res) =>
 {
     try {
-        const {_id,Fecha, Hora_Ingreso,Hora_Salida,Paciente, Tratamiento,Odontologo,Estado} = req.body
+        const {_id,Fecha, Hora_Ingreso,Hora_Salida,Paciente, Tratamiento,Descripcion,Odontologo,Estado} = req.body
         const date = await 
-        Dates.findByIdAndUpdate(_id,{Fecha, Hora_Ingreso,Hora_Salida,Paciente, Tratamiento,Odontologo,Estado},{new: true})
+        Dates.findByIdAndUpdate(_id,{Fecha, Hora_Ingreso,Hora_Salida,Paciente, Tratamiento,Descripcion,Odontologo,Estado},{new: true})
 
         if(!date )
         {

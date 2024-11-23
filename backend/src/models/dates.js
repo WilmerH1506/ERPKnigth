@@ -25,6 +25,11 @@ const datesSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    Descripcion:
+    {
+        type: String,
+        required: true
+    },
     Odontologo:
     {
         type: String,

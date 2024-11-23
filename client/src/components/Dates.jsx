@@ -19,10 +19,12 @@ const Dates = () => {
     Hora_Salida: '',
     Paciente: '',
     Tratamiento: '',
+    Descripcion: '',
     Odontologo: '',
     Estado: '',
   });
   const [dateToDelete, setDateToDelete] = useState(null);
+  
 
   useEffect(() => {
     const fetchDates = async () => {
@@ -54,6 +56,7 @@ const Dates = () => {
         Hora_Salida: '',
         Paciente: '',
         Tratamiento: '',
+        Descripcion: '',
         Odontologo: '',
         Estado: '',
       });
@@ -123,7 +126,7 @@ const Dates = () => {
     const { name, value } = e.target;
     setCurrentDate({ ...currentDate, [name]: value });
   };
-
+  
   const inputs = [
     {
       label: 'Fecha',
@@ -160,6 +163,14 @@ const Dates = () => {
       type: 'text',
       value: currentDate.Tratamiento,
       placeholder: 'Ingrese el tratamiento',
+      onChange: handleInputChange,
+    },
+    {
+      label: 'Descripción',
+      name: 'Descripcion',
+      type: 'text',
+      value: currentDate.Descripcion,
+      placeholder: 'Ingrese la descripción del tratamiento',
       onChange: handleInputChange,
     },
     {
@@ -208,6 +219,7 @@ const Dates = () => {
                   <th>Hora de Salida</th>
                   <th>Paciente</th>
                   <th>Tratamiento</th>
+                  <th>Descripcion</th>
                   <th>Odontólogo</th>
                   <th>Estado</th>
                   <th>Acciones</th>
@@ -221,6 +233,7 @@ const Dates = () => {
                     <td>{date.Hora_Salida}</td>
                     <td>{date.Paciente}</td>
                     <td>{date.Tratamiento}</td>
+                    <td>{date.Descripcion}</td>
                     <td>{date.Odontologo}</td>
                     <td>{date.Estado}</td>
                     <td className="action-buttons">

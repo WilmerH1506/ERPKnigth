@@ -1,0 +1,68 @@
+.date-canceled-container {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  
+  .date-canceled-titulo {
+    background-color: #0033cc;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 30px;
+  }
+  
+  .date-canceled-info {
+    margin-bottom: 20px;
+  }
+  
+  .date-canceled-tabla {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .date-canceled-tabla th, .date-canceled-tabla td {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 8px;
+  }
+  
+  .date-canceled-tabla th {
+    background-color: #15999B;
+    color: white;
+    text-align: center;
+  }
+  
+  .date-canceled-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 60px;
+    margin-top: -20px;
+    margin-left: 20px;
+    width: 100%;
+  }
+  
+  .date-canceled-btn-back, .date-canceled-btn-download {
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .date-canceled-btn-back {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .date-canceled-btn-download {
+    background-color: #4caf50;
+    color: white;
+    margin-right: 40px;
+  }
+  
+  .date-canceled-btn-back:hover, .date-canceled-btn-download:hover {
+    opacity: 0.8;
+  }
+  

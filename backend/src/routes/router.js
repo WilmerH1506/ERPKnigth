@@ -2,10 +2,15 @@ import {Router} from 'express';
 import {patients,registerpatients,deletePatient,editPatient} from '../controllers/controllerpatients.js';
 import {inventory,registerProduct,deleteProduct,editProduct} from '../controllers/controllerInventory.js';
 import {dates,RegisterDates,DeleteDate,EditDate} from '../controllers/controllerDates.js'
+import {treatments,registerTreatments} from '../controllers/controllertreatments.js';
+import {DatesperPatient,DatesCanceled,serviceRevenue} from '../controllers/controllerReports.js';
+
 
 const router = Router();
 
 router.get('/patients',patients);
+
+router.get('/patients/:id',DatesperPatient);
 
 router.post('/registerpatients',registerpatients);
 
@@ -23,10 +28,18 @@ router.put('/editproduct',editProduct);
 
 router.get('/dates',dates)
 
+router.get('/dates/canceled',DatesCanceled)
+
 router.post('/registerdate', RegisterDates)
 
 router.post('/deletedate', DeleteDate)
 
 router.put('/editdate', EditDate)
+
+router.get('/treatments',treatments)
+
+router.post('/registertreatments',registerTreatments)
+
+router.get("/services/:date", serviceRevenue);
 
 export default router;
