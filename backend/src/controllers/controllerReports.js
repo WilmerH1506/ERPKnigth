@@ -3,6 +3,7 @@ import Patients from '../models/patient.js';
 import Treatments from '../models/treatments.js';
 import complaint from '../models/complaints.js';
 
+
 export const DatesperPatient = async (req, res) => {
   try {
     const { id } = req.params; 
@@ -139,45 +140,40 @@ export const getComplaintsPerMonth = async (req, res) => {
 
 export const PatientsDropouts = async (req, res) => {
     try {
-        // Obtener la fecha actual y restar 6 meses
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-        // Buscar pacientes que han tenido citas realizadas en los últimos 6 meses
         const patientsWithRecentAppointments = await Dates.aggregate([
             {
                 $match: {
-                    Estado: "Realizada", // Filtrar solo las citas con estado "Realizada"
-                    Fecha: { $gte: sixMonthsAgo } // Fecha de la cita dentro de los últimos 6 meses
+                    Estado: "Realizada",
+                    Fecha: { $gte: sixMonthsAgo } 
                 }
             },
             {
                 $group: {
-                    _id: "$Paciente", // Agrupar por el nombre del paciente
-                    lastAppointment: { $max: "$Fecha" }, // Obtener la última cita realizada
-                    treatment: { $first: "$Tratamiento" }, // Tomar el tratamiento de la última cita
-                    description: { $first: "$Descripcion" } // Tomar la descripción de la última cita
+                    _id: "$Paciente", 
+                    lastAppointment: { $max: "$Fecha" }, 
+                    treatment: { $first: "$Tratamiento" }, 
+                    description: { $first: "$Descripcion" } 
                 }
             }
         ]);
 
-        // Obtener pacientes que no tienen citas en los últimos 6 meses
+       
         const patientsWithoutAppointments = await Patients.find({
-            Nombre: { $nin: patientsWithRecentAppointments.map(p => p._id) } // Filtrar pacientes que no están en la lista (comparar por Nombre)
+            Nombre: { $nin: patientsWithRecentAppointments.map(p => p._id) }
         });
 
-        // Crear una lista de pacientes desertores
         const dropouts = [];
 
-        // Recorrer los pacientes sin citas recientes y agregar la última cita si existe
+        
         for (let patient of patientsWithoutAppointments) {
-            // Buscar la última cita del paciente (si tiene alguna cita realizada)
             const lastAppointment = await Dates.findOne({
                 Paciente: patient.Nombre,
                 Estado: "Realizada"
-            }).sort({ Fecha: -1 }); // Obtener la última cita (la más reciente)
+            }).sort({ Fecha: -1 });
 
-            // Si tiene una cita, agregarla a la respuesta
             if (lastAppointment) {
                 dropouts.push({
                     Nombre: patient.Nombre,
@@ -188,7 +184,6 @@ export const PatientsDropouts = async (req, res) => {
             } 
         }
 
-        // Responder con los pacientes desertores
         res.status(200).json(dropouts);
 
     } catch (error) {

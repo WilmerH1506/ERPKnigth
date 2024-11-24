@@ -5,6 +5,10 @@ const inventorySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    Categoria: {
+        type: String,
+        required: true
+    },
     Descripcion: {
         type: String,
         required: true

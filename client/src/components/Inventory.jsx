@@ -130,6 +130,13 @@ const Inventory = () => {
       placeholder: 'Ingrese el nombre del producto',
     },
     {
+      label: 'Categoria',
+      name: 'Categoria',
+      placeholder: 'Ingrese la categoria del producto',
+      type: 'select',
+      options: ['Protección Personal', 'Material de Curación', 'Equipo y instrumentos', 'Medicamentos','Otros'],
+    },
+    {
       label: 'Descripción',
       name: 'Descripcion',
       placeholder: 'Ingrese una descripción',
@@ -179,6 +186,7 @@ const Inventory = () => {
           <thead>
             <tr>
               <th>Producto</th>
+              <th>Categoria</th>
               <th>Descripcion</th>
               <th>Distribuidor</th>
               <th>Caducidad</th>
@@ -192,6 +200,7 @@ const Inventory = () => {
             {inventory.map((product) => (
               <tr key={product._id}>
                 <td>{product.Producto}</td>
+                <td>{product.Categoria}</td>
                 <td>{product.Descripcion}</td>
                 <td>{product.Distribuidor}</td>
                 <td>{formatDate(product.Caducidad)}</td>

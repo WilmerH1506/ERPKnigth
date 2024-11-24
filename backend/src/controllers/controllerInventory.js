@@ -12,9 +12,9 @@ export const inventory = async (req, res) => {
 
 export const registerProduct = async (req, res) => {
     
-    const {Producto,Descripcion,Distribuidor,Caducidad,Cantidad,Precio,Total} = req.body;
+    const {Producto,Categoria,Descripcion,Distribuidor,Caducidad,Cantidad,Precio,Total} = req.body;
 
-    const newInventory = new Inventory({Producto,Descripcion,Distribuidor,Caducidad,Cantidad,Precio,Total});
+    const newInventory = new Inventory({Producto,Categoria,Descripcion,Distribuidor,Caducidad,Cantidad,Precio,Total});
 
     try {
         await newInventory.save();
@@ -42,12 +42,12 @@ export const deleteProduct = async (req, res) => {
 };
 
 export const editProduct = async (req, res) => {
-    const { _id, Producto,Descripcion,Distribuidor,Caducidad,Cantidad,Precio,Total } = req.body;
+    const { _id, Producto,Categoria,Descripcion,Distribuidor,Caducidad,Cantidad,Precio,Total } = req.body;
     
     try {
         const product = await
         Inventory
-            .findByIdAndUpdate(_id, { Producto,Descripcion,Distribuidor,Caducidad,Cantidad,Precio,Total }, { new: true });
+            .findByIdAndUpdate(_id, { Producto,Categoria,Descripcion,Distribuidor,Caducidad,Cantidad,Precio,Total }, { new: true });
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });

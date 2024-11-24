@@ -46,7 +46,7 @@ const ReporteQuejas = () => {
   };
 
   const handleGoBack = () => {
-    navigate("/reports");
+    navigate(-1);
   };
 
   if (loading) return <p>Cargando datos...</p>;

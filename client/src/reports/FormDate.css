@@ -68,13 +68,13 @@
   }
   
   .select-date-reports-back-button {
-    background-color: #e63946; /* Rojo más suave y agradable */
-    color: #fff; /* El texto en blanco para buen contraste */
+    background-color: #e63946;
+    color: #fff; 
     border: 1px solid #ccc;
   }
   
   .select-date-reports-back-button:hover {
-    background-color: #d62739; /* Rojo un poco más oscuro al pasar el cursor */
+    background-color: #d62739; 
   }
   
   @media (max-width: 600px) {

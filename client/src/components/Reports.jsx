@@ -61,6 +61,10 @@ const ClinicReports = () => {
     if (reportType === 'Tasa de abandonos') {
       navigate('/reporte-abandono');
     }
+
+    if (reportType === 'Inventario') {
+      navigate('/reporte-inventario');
+    }
   };
 
   const handlePatientSelect = (patientId) => {

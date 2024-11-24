@@ -1,0 +1,106 @@
+.inventory-report-container {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.inventory-report-title {
+  background-color: #0033cc;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 30px;
+}
+
+.inventory-report-info {
+  margin-bottom: 20px;
+}
+
+.inventory-report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventory-report-table th, .inventory-report-table td {
+  border: 1px solid #ccc;
+  text-align: center;
+  padding: 8px;
+}
+
+.inventory-report-table th {
+  background-color: #15999B;
+  color: white;
+}
+
+.inventory-report-buttons-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 60px;
+  margin-top: -20px;
+  margin-left: 20px;
+  width: 100%;
+}
+
+.inventory-report-btn-back, .inventory-report-btn-download {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.inventory-report-btn-back {
+  background-color: #f44336;
+  color: white;
+}
+
+.inventory-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  
+  .inventory-pagination-button {
+    background-color: #15999B;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .inventory-pagination-button:hover {
+    background-color: #45a049; 
+    transform: scale(1.05);
+  }
+  
+  .inventory-pagination-button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  .inventory-page-info {
+    font-size: 16px;
+    color: #333;
+    margin: 0 10px;
+  }
+
+.inventory-report-btn-download {
+  background-color: #4caf50;
+  color: white;
+  margin-right: 40px;
+}
+
+.inventory-report-btn-back:hover, .inventory-report-btn-download:hover {
+  opacity: 0.8;
+}
+
+.inventory-report-chart {
+  margin-top: 40px;
+  height: 400px; 
+}
