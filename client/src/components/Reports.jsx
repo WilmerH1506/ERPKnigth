@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate para redirección
+import { useNavigate } from 'react-router-dom'; 
 import './Reports.css';
-import { FaUserMd, FaCalendarTimes, FaChartLine, FaClock, FaTimesCircle, FaDollarSign, FaBox, FaPills, FaComment } from 'react-icons/fa';
+import { FaUserMd, FaCalendarTimes, FaChartLine, FaClock, FaTimesCircle, FaDollarSign, FaBox, FaComment } from 'react-icons/fa';
 
 const ClinicReports = () => {
   const [patients, setPatients] = useState([]);
@@ -48,6 +48,18 @@ const ClinicReports = () => {
 
     if (reportType === 'Cancelaciones') {
       navigate('/reporte-cancelaciones');
+    }
+
+    if (reportType === 'Ingresos') {
+      navigate('/seleccionar-fecha-reportes');
+    }
+
+    if (reportType === 'Quejas') {
+      navigate('/seleccionar-fecha-quejas');
+    }
+
+    if (reportType === 'Tasa de abandonos') {
+      navigate('/reporte-abandono');
     }
   };
 

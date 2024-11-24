@@ -7,6 +7,11 @@ import Inventory from './Inventory';
 import Reports from './Reports';
 import ReporteCitas from '../reports/PatientReport';
 import ReporteCancelaciones from '../reports/DateCanceledReport';
+import ReportesServicios from '../reports/RevenueReport';
+import SelectDateForReports from '../reports/FormDate';
+import SelectDateForReportsComplaints from '../reports/FormDateQuejas';
+import ReporteQuejas from '../reports/ComplaintsReport';
+import ReporteAbandono from '../reports/DropoutsReport';
 import './App.css';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 
@@ -24,6 +29,11 @@ const App = () => {
             <Route path="/reports" element={<Reports />} />
             <Route path="/reporte-citas/:id" element={<ReporteCitas />} />
             <Route path="/reporte-cancelaciones" element={<ReporteCancelaciones />} />
+            <Route path="/seleccionar-fecha-reportes" element={<SelectDateForReports />} />
+            <Route path="/seleccionar-fecha-quejas" element={<SelectDateForReportsComplaints />} />
+            <Route path="/reporte-servicios/:date" element={<ReportesServicios />} />
+            <Route path="/reporte-quejas/:date" element={<ReporteQuejas />} />
+            <Route path="/reporte-abandono" element={<ReporteAbandono />} />
           </Routes>
         </div>
       </div>

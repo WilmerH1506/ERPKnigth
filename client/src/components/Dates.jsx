@@ -189,7 +189,7 @@ const Dates = () => {
       placeholder: 'Seleccione el estado de la cita',
       value: currentDate.Estado,
       onChange: handleInputChange,
-      options: ['Pendiente', 'Cancelada', 'Realizada'],
+      options: ['Pendiente', 'Cancelada', 'Realizada','Ausente'],
     },
   ];
 

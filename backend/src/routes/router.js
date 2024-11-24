@@ -3,7 +3,7 @@ import {patients,registerpatients,deletePatient,editPatient} from '../controller
 import {inventory,registerProduct,deleteProduct,editProduct} from '../controllers/controllerInventory.js';
 import {dates,RegisterDates,DeleteDate,EditDate} from '../controllers/controllerDates.js'
 import {treatments,registerTreatments} from '../controllers/controllertreatments.js';
-import {DatesperPatient,DatesCanceled,serviceRevenue} from '../controllers/controllerReports.js';
+import {DatesperPatient,DatesCanceled,serviceRevenue,getComplaints,registerComplaint,getComplaintsPerMonth,PatientsDropouts} from '../controllers/controllerReports.js';
 
 
 const router = Router();
@@ -41,5 +41,13 @@ router.get('/treatments',treatments)
 router.post('/registertreatments',registerTreatments)
 
 router.get("/services/:date", serviceRevenue);
+
+router.get("/complaints", getComplaints);
+
+router.get("/complaints/:date", getComplaintsPerMonth);
+
+router.post("/registercomplaint", registerComplaint);
+
+router.get("/dropouts", PatientsDropouts);
 
 export default router;

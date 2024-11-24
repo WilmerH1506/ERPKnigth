@@ -1,0 +1,94 @@
+.select-date-reports-container {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  
+  .select-date-reports-title {
+    margin-top: 5px;
+    font-size: 2em;
+    margin-bottom: 25px;
+    color: #333;
+  }
+  
+  .select-date-reports-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .select-date-reports-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+  
+  .select-date-reports-label {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+  }
+  
+  .select-date-reports-input {
+    padding: 12px;
+    font-size: 1.1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .select-date-reports-input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .select-date-reports-button,
+  .select-date-reports-back-button {
+    padding: 12px 20px;
+    font-size: 1.1em;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .select-date-reports-button {
+    background-color: #007bff;
+  }
+  
+  .select-date-reports-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .select-date-reports-back-button {
+    background-color: #e63946; /* Rojo más suave y agradable */
+    color: #fff; /* El texto en blanco para buen contraste */
+    border: 1px solid #ccc;
+  }
+  
+  .select-date-reports-back-button:hover {
+    background-color: #d62739; /* Rojo un poco más oscuro al pasar el cursor */
+  }
+  
+  @media (max-width: 600px) {
+    .select-date-reports-container {
+      max-width: 90%;
+      padding: 20px;
+    }
+  
+    .select-date-reports-title {
+      font-size: 1.5em;
+    }
+  
+    .select-date-reports-form {
+      gap: 15px;
+    }
+  }
+  
