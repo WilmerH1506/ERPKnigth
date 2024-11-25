@@ -3,7 +3,9 @@ import {patients,registerpatients,deletePatient,editPatient} from '../controller
 import {inventory,registerProduct,deleteProduct,editProduct} from '../controllers/controllerInventory.js';
 import {dates,RegisterDates,DeleteDate,EditDate} from '../controllers/controllerDates.js'
 import {treatments,registerTreatments} from '../controllers/controllertreatments.js';
-import {DatesperPatient,DatesCanceled,serviceRevenue,getComplaints,registerComplaint,getComplaintsPerMonth,PatientsDropouts} from '../controllers/controllerReports.js';
+import {DatesperPatient,DatesCanceled,serviceRevenue,getComplaints,
+    registerComplaint,getComplaintsPerMonth,PatientsDropouts,
+    NewPatients, NewPatientsByYear, FreeHoursPerDoctor} from '../controllers/controllerReports.js';
 
 
 const router = Router();
@@ -11,6 +13,10 @@ const router = Router();
 router.get('/patients',patients);
 
 router.get('/patients/:id',DatesperPatient);
+
+router.get('/Newpatients/:date',NewPatients);
+
+router.get('/NewYpatients/:year',NewPatientsByYear);
 
 router.post('/registerpatients',registerpatients);
 
@@ -29,6 +35,8 @@ router.put('/editproduct',editProduct);
 router.get('/dates',dates)
 
 router.get('/dates/canceled',DatesCanceled)
+
+router.get('/freeHours/:date', FreeHoursPerDoctor)
 
 router.post('/registerdate', RegisterDates)
 

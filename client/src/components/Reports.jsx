@@ -65,6 +65,14 @@ const ClinicReports = () => {
     if (reportType === 'Inventario') {
       navigate('/reporte-inventario');
     }
+
+    if (reportType === 'Pacientes nuevos') {
+      navigate('/seleccionar-fecha-crecimiento');
+    }
+
+    if (reportType === 'Horarios Doctoras') {
+      navigate('/seleccionar-fecha-horas-libres');
+    }
   };
 
   const handlePatientSelect = (patientId) => {

@@ -191,3 +191,138 @@ export const PatientsDropouts = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 }
+
+export const NewPatients = async (req, res) => {
+    const { date } = req.params;
+
+    if (!/^\d{2}-\d{4}$/.test(date)) {
+        return res.status(400).json({ error: 'Formato de fecha inválido. Utiliza MM-YYYY.' });
+    }
+
+    const [month, year] = date.split('-').map(Number);
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0);
+    
+
+    const weeks = [
+        { Semana: 'Semana 1', FechaInicio: new Date(year, month - 1, 1), FechaFin: new Date(year, month - 1, 7), CantidadPacientesNuevos: 0 },
+        { Semana: 'Semana 2', FechaInicio: new Date(year, month - 1, 8), FechaFin: new Date(year, month - 1, 14), CantidadPacientesNuevos: 0 },
+        { Semana: 'Semana 3', FechaInicio: new Date(year, month - 1, 15), FechaFin: new Date(year, month - 1, 21), CantidadPacientesNuevos: 0 },
+        { Semana: 'Semana 4', FechaInicio: new Date(year, month - 1, 22), FechaFin: endOfMonth, CantidadPacientesNuevos: 0 }
+    ];
+
+    try {
+        const patients = await Patients.find({
+            createdAt: {
+                $gte: startOfMonth,
+                $lte: endOfMonth
+            }
+        });
+
+        patients.forEach(patient => {
+            const createdDate = new Date(patient.createdAt);
+            weeks.forEach(week => {
+                if (createdDate >= week.FechaInicio && createdDate <= week.FechaFin) {
+                    week.CantidadPacientesNuevos++;
+                }
+            });
+        });
+
+        res.json(weeks);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener los pacientes.' });
+    }
+};
+
+
+export const NewPatientsByYear = async (req, res) => {
+  try {
+    
+    const { year } = req.params;
+
+    if (!/^(\d{4})$/.test(year)) {
+      return res.status(400).json({ error: 'El formato del año no es válido. Use el formato YYYY.' });
+    }
+
+    const result = [];
+
+    for (let month = 0; month < 12; month++) {
+     
+      const startDate = new Date(year, month, 1);
+      const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999); 
+
+     
+      const patientCount = await Patients.countDocuments({
+        createdAt: { $gte: startDate, $lte: endDate }
+      });
+
+      
+      result.push({
+        Mes: startDate.toLocaleString('es-ES', { month: 'long' }), 
+        CantidadPacientesNuevos: patientCount
+      });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al recuperar los datos de pacientes nuevos por mes.' });
+  }
+};
+
+export const FreeHoursPerDoctor = async (req, res) => {
+    try {
+        const { date } = req.params;
+    
+        const [month, year] = date.split('-').map(Number);
+    
+        if (!year || !month || month < 1 || month > 12) {
+          return res.status(400).json({ message: "Por favor, proporcione 'date' en el formato 'MM-YYYY'." });
+        }
+    
+        const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0)); 
+        const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59)); 
+    
+        const appointments = await Dates.find({
+          Estado: "Pendiente",
+          Fecha: { $gte: startDate, $lte: endDate }
+        });
+    
+        const workingHours = Array.from({ length: 10 }, (_, i) => `${8 + i}:00`);
+    
+        const totalDaysInMonth = endDate.getUTCDate();
+        const monthDates = Array.from({ length: totalDaysInMonth }, (_, i) => {
+          const date = new Date(Date.UTC(year, month - 1, i + 1));
+          return date.toISOString().split('T')[0];
+        });
+    
+        const groupedAppointments = appointments.reduce((acc, appointment) => {
+          const dateKey = appointment.Fecha.toISOString().split("T")[0];
+          const doctor = appointment.Odontologo;
+    
+          if (!acc[doctor]) acc[doctor] = {};
+          if (!acc[doctor][dateKey]) acc[doctor][dateKey] = [];
+    
+          acc[doctor][dateKey].push(appointment.Hora_Ingreso);
+          return acc;
+        }, {});
+    
+        const result = Object.keys(groupedAppointments).map((doctor) => {
+          const dates = monthDates.map((date) => {
+            const busyHours = groupedAppointments[doctor]?.[date]?.map((hour) =>
+              hour.startsWith("0") ? hour.slice(1) : hour
+            ) || [];
+            const freeHours = workingHours.filter(hour => !busyHours.includes(hour));
+            return { date, freeHours };
+          });
+    
+          return { doctor, dates };
+        });
+    
+        res.status(200).json(result);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener las horas libres.", error: error.message });
+      }
+    
+  };

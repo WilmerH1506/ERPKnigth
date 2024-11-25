@@ -1,0 +1,92 @@
+.free-report-page-container {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  
+  .free-report-page-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .free-report-page-btn-back,
+  .free-report-page-btn-download {
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .free-report-page-btn-back {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .free-report-page-btn-download {
+    background-color: #4caf50;
+    color: white;
+  }
+
+  .free-report-charts-container {
+    margin-top: 20px;
+  }
+  
+  /* Fila de gráficas */
+  .free-report-charts-row {
+    display: flex;
+    flex-wrap: wrap; /* Permite que las gráficas pasen a la siguiente fila si no caben */
+    gap: 20px; /* Espaciado entre las gráficas */
+    justify-content: center; /* Centra las gráficas horizontalmente */
+  }
+  
+  /* Estilo individual para cada gráfica */
+  .free-report-chart-item {
+    flex: 1 1 300px; /* Tamaño mínimo de 300px, se expanden proporcionalmente */
+    max-width: 400px; /* Tamaño máximo */
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .inventory-report-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .inventory-report-button-download {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
+    margin-left: 40px;
+    margin-top: -20px;
+  }
+
+    .inventory-report-button-back {
+        background-color: #f44336;
+        color: white;
+        padding: 10px 20px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        margin-bottom: 20px;
+        margin-top: -20px;
+    }
+  
+  .inventory-report-button-back:hover,
+  .inventory-report-button-download:hover {
+    background-color: #0056b3;
+  }

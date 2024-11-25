@@ -1,0 +1,94 @@
+.growth-report-date-container {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  
+  .growth-report-date-title {
+    margin-top: 5px;
+    font-size: 2em;
+    margin-bottom: 25px;
+    color: #333;
+  }
+  
+  .growth-report-date-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .growth-report-date-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+  
+  .growth-report-date-label {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+  }
+  
+  .growth-report-date-input {
+    padding: 12px;
+    font-size: 1.1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .growth-report-date-input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .growth-report-date-button,
+  .growth-report-date-back-button {
+    padding: 12px 20px;
+    font-size: 1.1em;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .growth-report-date-button {
+    background-color: #007bff;
+  }
+  
+  .growth-report-date-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .growth-report-date-back-button {
+    background-color: #e63946;
+    color: #fff;
+    border: 1px solid #ccc;
+  }
+  
+  .growth-report-date-back-button:hover {
+    background-color: #d62739;
+  }
+  
+  @media (max-width: 600px) {
+    .growth-report-date-container {
+      max-width: 90%;
+      padding: 20px;
+    }
+  
+    .growth-report-date-title {
+      font-size: 1.5em;
+    }
+  
+    .growth-report-date-form {
+      gap: 15px;
+    }
+  }
+  

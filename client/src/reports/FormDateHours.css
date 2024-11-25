@@ -1,0 +1,93 @@
+.free-hours-report-container {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+  
+.free-hours-report-title {
+    margin-top: 5px;
+    font-size: 2em;
+    margin-bottom: 25px;
+    color: #333;
+}
+  
+.free-hours-report-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+  
+.free-hours-report-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+  
+.free-hours-report-label {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+}
+  
+.free-hours-report-input {
+    padding: 12px;
+    font-size: 1.1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+}
+  
+.free-hours-report-input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+  
+.free-hours-report-button,
+.free-hours-report-back-button {
+    padding: 12px 20px;
+    font-size: 1.1em;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+  
+.free-hours-report-button {
+    background-color: #007bff;
+}
+  
+.free-hours-report-button:hover {
+    background-color: #0056b3;
+}
+  
+.free-hours-report-back-button {
+    background-color: #e63946;
+    color: #fff; 
+    border: 1px solid #ccc;
+}
+  
+.free-hours-report-back-button:hover {
+    background-color: #d62739; 
+}
+  
+@media (max-width: 600px) {
+    .free-hours-report-container {
+        max-width: 90%;
+        padding: 20px;
+    }
+  
+    .free-hours-report-title {
+        font-size: 1.5em;
+    }
+  
+    .free-hours-report-form {
+        gap: 15px;
+    }
+}

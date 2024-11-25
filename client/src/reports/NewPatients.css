@@ -1,0 +1,112 @@
+.reporte-crecimiento-contenedor {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.reporte-crecimiento-titulo {
+  background-color: #0033cc;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 30px;
+}
+
+.reporte-crecimiento-info {
+  margin-bottom: 20px;
+}
+
+.reporte-crecimiento-tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reporte-crecimiento-tabla th, .reporte-crecimiento-tabla td {
+  border: 1px solid #ccc;
+  text-align: center;
+  padding: 8px;
+}
+
+.reporte-crecimiento-tabla th {
+  background-color: #15999B;
+  color: white;
+}
+
+.reporte-crecimiento-botones{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 60px;
+  margin-top: 20px;
+}
+
+.reporte-crecimiento-boton-salir, .reporte-crecimiento-boton-descargar {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.reporte-crecimiento-boton-salir {
+  background-color: #f44336;
+  color: white;
+    margin-left: 20px;
+}
+
+.reporte-crecimiento-boton-descargar {
+  background-color: #4caf50;
+  color: white;
+  margin-right: 20px;
+}
+
+.reporte-crecimiento-boton-salir:hover, .reporte-crecimiento-boton-descargar:hover {
+  opacity: 0.8;
+}
+
+.reporte-crecimiento-grafico {
+  margin-top: 40px;
+  height: 400px;
+}
+
+.reporte-crecimiento-paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.reporte-crecimiento-paginacion-boton {
+  background-color: #15999B;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.reporte-crecimiento-paginacion-boton:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.reporte-crecimiento-paginacion-boton:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.reporte-crecimiento-info-pagina {
+  font-size: 16px;
+  color: #333;
+  margin: 0 10px;
+}
+
+.reporte-crecimiento-cargando,
+.reporte-crecimiento-error {
+  font-size: 18px;
+  color: red;
+  text-align: center;
+}
