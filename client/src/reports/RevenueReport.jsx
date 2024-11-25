@@ -9,43 +9,50 @@ const ReportesServicios = () => {
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Número de filas por página
+  const itemsPerPage = 5; 
   const navigate = useNavigate();
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`http://localhost:3000/api/services/${date}`);
-        const data = await response.json();
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/services/${date}`);
+      const data = await response.json();
 
-        if (data.revenue) {
-          let idCounter = 1;
-          const formattedData = Object.entries(data.revenue)
-            .map(([servicio, details]) =>
-              details.pacientes.map((paciente, i) => ({
+      if (data.revenue) {
+        let idCounter = 1;
+        let revenueSum = 0; 
+        const formattedData = Object.entries(data.revenue)
+          .map(([servicio, details]) =>
+            details.pacientes.map((paciente, i) => {
+              const costo = details.total / details.pacientes.length;
+              revenueSum += costo;
+              return {
                 id: idCounter++,
                 servicio,
                 paciente,
-                costo: details.total / details.pacientes.length,
+                costo,
                 fecha: details.fechas[i],
                 cantidad: 1,
-                total: details.total / details.pacientes.length,
-              }))
-            )
-            .flat();
+                total: costo,
+              };
+            })
+          )
+          .flat();
 
-          setReportData(formattedData);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setLoading(false);
+        setReportData(formattedData);
+        setTotalRevenue(revenueSum); 
       }
-    };
 
-    fetchData();
-  }, [date]);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [date]);
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter");
@@ -131,6 +138,13 @@ const ReportesServicios = () => {
       <div id="reportes-servicios-container" className="reportes-container">
         <h1 className="reportes-titulo">Reporte de Servicios</h1>
         <p>Fecha de emisión: {new Date().toLocaleDateString("es-ES")}</p>
+        <p>
+            Total generado:{" "}
+            {totalRevenue.toLocaleString("es-HN", {
+              style: "currency",
+              currency: "HNL",
+            })}
+        </p>
 
         <table className="reportes-tabla">
           <thead>

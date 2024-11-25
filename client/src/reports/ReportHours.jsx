@@ -116,6 +116,7 @@ const FreeHoursReport = () => {
             <th>Doctora</th>
             <th>Horas Libres</th>
             <th>Horas Ocupadas</th>
+            <th>Horarios Disponibles</th> {/* Nueva columna */}
           </tr>
         </thead>
         <tbody>
@@ -126,6 +127,7 @@ const FreeHoursReport = () => {
                 <td>{dayIndex === 0 ? doctorData.doctor : ""}</td>
                 <td>{day.freeHours.length}</td>
                 <td>{10 - day.freeHours.length}</td>
+                <td>{day.freeHours.join(", ")}</td> {/* Nueva celda */}
               </tr>
             ))
           )}
