@@ -4,6 +4,7 @@ import axios from "axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Bar } from "react-chartjs-2";
+import logo from '../assets/Logo.jpg';
 import "./NewPatients.css";
 import {
   Chart as ChartJS,
@@ -123,7 +124,10 @@ const ReporteCrecimiento = () => {
       </div>
 
       <div id="reporte-crecimiento-contenedor" className="reporte-crecimiento-contenedor">
-        <h1 className="reporte-crecimiento-titulo">Reporte Estadistico de Nuevos Pacientes</h1>
+       <h1 className="free-report-header">
+        <span className="free-report-title">Reporte Estadistico de Nuevos Pacientes</span>
+        <img src={logo} alt="Logo" className="free-logo" />
+      </h1>
         <p>
           <strong>Fecha de emisión:</strong> {new Date().toLocaleDateString()}
         </p>

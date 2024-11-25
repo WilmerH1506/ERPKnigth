@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jsPDF } from "jspdf";
+import logo from '../assets/Logo.jpg';
 import "jspdf-autotable"; 
 import "./DateCanceledReport.css";
 
@@ -44,7 +45,8 @@ const DateCanceledReport = () => {
       }
 
       doc.setFontSize(16);
-      doc.text("Reporte de cancelación de citas", 14, 20); // Título
+      doc.text("Reporte de cancelación de citas", 14, 20);      
+      doc.addImage(logo, "JPEG", 180, 10, 20, 20);
       doc.setFontSize(12);
       doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
       doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
@@ -104,7 +106,10 @@ const DateCanceledReport = () => {
       </div>
 
       <div id="date-canceled-report-container" className="date-canceled-container">
-        <h1 className="date-canceled-titulo">Reporte de cancelación de citas</h1>
+      <h1 className="free-report-header">
+        <span className="free-report-title">Reporte de cancelación de citas</span>
+        <img src={logo} alt="Logo" className="free-logo" />
+      </h1>
 
         <div className="date-canceled-info">
           <p><strong>Fecha de emisión:</strong> {new Date().toLocaleDateString()}</p>

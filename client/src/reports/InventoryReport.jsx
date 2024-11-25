@@ -4,6 +4,7 @@ import axios from "axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "jspdf-autotable";  
+import logo from '../assets/Logo.jpg';
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -196,7 +197,10 @@ const InventoryReport = () => {
       </div>
 
       <div id="inventory-report-container" className="inventory-report-container">
-        <h1 className="inventory-report-title">Reporte de inventario de insumos</h1>
+      <h1 className="inventory-report-header">
+        <span className="inventory-report-title">Reporte de inventario de insumos</span>
+        <img src={logo} alt="Logo" className="free-logo" />
+      </h1>
 
         <div className="inventory-report-info">
           <p>

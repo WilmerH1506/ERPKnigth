@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
+import logo from '../assets/Logo.jpg';
 import "jspdf-autotable";
 import "./ComplaintReport.css";
 
@@ -9,8 +10,8 @@ const ReporteQuejas = () => {
   const [complaintsData, setComplaintsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1); // Estado para la paginación
-  const itemsPerPage = 5; // Elementos por página
+  const [currentPage, setCurrentPage] = useState(1); 
+  const itemsPerPage = 5; 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,27 +32,27 @@ const ReporteQuejas = () => {
   }, [date]);
 
   const handleDownloadPDF = () => {
-    const doc = new jsPDF("p", "mm", "letter"); // Formato carta
+    const doc = new jsPDF("p", "mm", "letter"); 
     const tableStartY = 30;
     const totalPages = Math.ceil(complaintsData.length / itemsPerPage);
   
-    // Generar páginas en el PDF según la paginación
+
     for (let page = 0; page < totalPages; page++) {
       const startIdx = page * itemsPerPage;
       const endIdx = startIdx + itemsPerPage;
       const pageItems = complaintsData.slice(startIdx, endIdx);
   
       if (page > 0) {
-        doc.addPage(); // Agregar una nueva página si no es la primera
+        doc.addPage(); 
       }
   
       doc.setFontSize(16);
-      doc.text("Reporte de Quejas", 14, 20); // Título
+      doc.text("Reporte de Quejas", 14, 20); 
+      doc.addImage(logo, "JPEG", 180, 10, 20, 20);
       doc.setFontSize(12);
       doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
       doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
   
-      // Configuración de columnas y filas
       const columns = [
         { header: "Queja ID", dataKey: "id" },
         { header: "Paciente", dataKey: "Paciente" },
@@ -70,7 +71,6 @@ const ReporteQuejas = () => {
         Razon: queja.Razon,
       }));
   
-      // Generar la tabla de la página actual
       doc.autoTable({
         head: [columns.map((col) => col.header)],
         body: rows.map((row) => columns.map((col) => row[col.dataKey])),
@@ -115,7 +115,10 @@ const ReporteQuejas = () => {
       </div>
 
       <div id="complaints-report-container" className="complaints-container">
-        <h1 className="complaints-titulo">Reporte de Quejas</h1>
+        <h1 className="free-report-header">
+        <span className="free-report-title">Reporte de quejas</span>
+        <img src={logo} alt="Logo" className="free-logo" />
+      </h1>
         <p>Fecha de emisión: {new Date().toLocaleDateString("es-ES")}</p>
 
         <table className="complaints-tabla">

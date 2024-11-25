@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import "./RevenueReport.css";
+import logo from '../assets/Logo.jpg';
 
 const ReportesServicios = () => {
   const { date } = useParams();
@@ -70,6 +71,7 @@ useEffect(() => {
 
       doc.setFontSize(16);
       doc.text("Reporte de Servicios", 14, 20);
+      doc.addImage(logo, "JPEG", 180, 10, 20, 20);
       doc.setFontSize(12);
       doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
       doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
@@ -136,7 +138,10 @@ useEffect(() => {
       </div>
 
       <div id="reportes-servicios-container" className="reportes-container">
-        <h1 className="reportes-titulo">Reporte de Servicios</h1>
+      <h1 className="free-report-header">
+          <span className="free-report-title">Reporte de servicios</span>
+          <img src={logo} alt="Logo" className="free-logo" />
+      </h1>
         <p>Fecha de emisión: {new Date().toLocaleDateString("es-ES")}</p>
         <p>
             Total generado:{" "}

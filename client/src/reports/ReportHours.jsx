@@ -6,6 +6,7 @@ import "chart.js/auto";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "./ReportHours.css";
+import logo from '../assets/Logo.jpg';
 
 const FreeHoursReport = () => {
   const { date } = useParams(); 
@@ -51,7 +52,6 @@ const FreeHoursReport = () => {
     fetchFreeHours();
   }, [date]);
 
-  // Calcular totales para las gráficas
   const calculateTotals = (dates) =>
     dates.reduce(
       (acc, day) => {
@@ -103,7 +103,10 @@ const FreeHoursReport = () => {
         
       </div>
 
-      <h1 className="inventory-report-title">Reporte de Horas Libres</h1>
+      <h1 className="free-report-header">
+        <span className="free-report-title">Reporte de Horas Libres</span>
+        <img src={logo} alt="Logo" className="free-logo" />
+      </h1>
       <p className="inventory-report-info">
         <strong>Fecha de reporte:</strong> {new Date().toLocaleDateString()}
       </p>

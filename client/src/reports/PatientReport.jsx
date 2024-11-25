@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jsPDF } from "jspdf"; 
+import logo from '../assets/Logo.jpg';
 import "jspdf-autotable"; 
 import "./PatientReport.css";
 
@@ -44,6 +45,7 @@ const ReporteCitas = () => {
 
     doc.setFontSize(16);
     doc.text("Reporte de Citas por Paciente", 14, 20);
+    doc.addImage(logo, "JPEG", 180, 10, 20, 20);
     doc.setFontSize(12);
     doc.text(`Paciente: ${patientData.Nombre}`, 14, 30);
     doc.text(`ID: ${patientData.DNI}`, 14, 40);
@@ -116,8 +118,10 @@ const ReporteCitas = () => {
 
       <div id="reporte-content">
         <div style={{ height: "15px" }}></div>
-        <h1 className="reporte-titulo">Reporte de Citas por Paciente</h1>
-
+        <h1 className="free-report-header">
+          <span className="free-report-title">Reporte de Citas por Paciente</span>
+          <img src={logo} alt="Logo" className="free-logo" />
+        </h1>
         {/* Información del Paciente */}
         <div className="reporte-info">
           <div className="info-row">
@@ -128,6 +132,7 @@ const ReporteCitas = () => {
           <div className="info-row">
             <p><strong>Fecha de emisión:</strong> {new Date().toLocaleDateString()}</p>
             <p><strong>Correo:</strong> {patientData.Correo}</p>
+            <p></p>
           </div>
         </div>
 
