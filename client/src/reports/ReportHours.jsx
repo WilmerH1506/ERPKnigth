@@ -8,14 +8,14 @@ import jsPDF from "jspdf";
 import "./ReportHours.css";
 
 const FreeHoursReport = () => {
-  const { date } = useParams(); // Fecha en formato MM-YYYY
-  const navigate = useNavigate(); // Para redirigir
+  const { date } = useParams(); 
+  const navigate = useNavigate(); 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const itemsPerPage = 7; // Días por página (1 semana)
+  const itemsPerPage = 7; 
 
   useEffect(() => {
     const fetchFreeHours = async () => {
@@ -98,7 +98,7 @@ const FreeHoursReport = () => {
           className="inventory-report-button-back"
           onClick={() => navigate("/reports")}
         >
-          Salir
+         ← Salir
         </button>
         
       </div>

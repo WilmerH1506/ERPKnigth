@@ -31,7 +31,7 @@ const ClinicReports = () => {
         { icon: <FaTimesCircle />, title: 'Cancelaciones', description: 'Análisis de cancelaciones de citas' },
         { icon: <FaDollarSign />, title: 'Ingresos', description: 'Generados por servicio' },
         { icon: <FaBox />, title: 'Inventario', description: 'Control de insumos' },
-        { icon: <FaCalendarTimes />, title: 'Tasa de abandonos', description: 'Pacientes que no asisten a citas hace 6 o más meses' },
+        { icon: <FaCalendarTimes />, title: 'Abandonos', description: 'Pacientes que no asisten a citas hace 6 o más meses' },
       ],
     },
   ];
@@ -58,7 +58,7 @@ const ClinicReports = () => {
       navigate('/seleccionar-fecha-quejas');
     }
 
-    if (reportType === 'Tasa de abandonos') {
+    if (reportType === 'Abandonos') {
       navigate('/reporte-abandono');
     }
 
@@ -88,8 +88,6 @@ const ClinicReports = () => {
     <div className="clinic-reports">
       <h1>Reportes de la Clínica</h1>
 
-      <input type="text" placeholder="Buscar informes..." className="search-input" />
-
       {sections.map((section, index) => (
         <div key={index} className="section">
           <h2>{section.title}</h2>
@@ -107,18 +105,7 @@ const ClinicReports = () => {
         </div>
       ))}
 
-      <div className="historical-reports">
-        <h2>Histórico de Reportes Generados</h2>
-        <div className="historical-cards">
-          {historicalReports.map((report, index) => (
-            <div key={index} className="historical-card">
-              <p><strong>{report.date}</strong></p>
-              <p>{report.report}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      
       {showPatientSelection && (
         <div className="patient-selection-modal">
           <div className="modal-content">

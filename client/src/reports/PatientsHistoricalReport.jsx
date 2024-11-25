@@ -118,12 +118,12 @@ const ReporteCrecimiento = () => {
           ← Salir
         </button>
         <button onClick={handleDownloadPDF} className="reporte-crecimiento-boton-descargar">
-          Guardas como PDF
+          Guardar como PDF
         </button>
       </div>
 
       <div id="reporte-crecimiento-contenedor" className="reporte-crecimiento-contenedor">
-        <h1 className="reporte-crecimiento-titulo">Reporte de Crecimiento</h1>
+        <h1 className="reporte-crecimiento-titulo">Reporte Estadistico de Nuevos Pacientes</h1>
         <p>
           <strong>Fecha de emisión:</strong> {new Date().toLocaleDateString()}
         </p>

@@ -25,7 +25,7 @@ const SelectDateForHoursReport = () => {
 
   return (
     <div className="free-hours-report-container">
-      <h1 className="free-hours-report-title">Seleccionar Fecha para Reporte de Horas Libres</h1>
+      <h1 className="free-hours-report-title">Seleccionar Fecha para Reporte de Ocupación de horarios</h1>
       <form onSubmit={handleSubmit} className="free-hours-report-form">
         <div className="free-hours-report-group">
           <label htmlFor="month" className="free-hours-report-label">Mes:</label>
@@ -58,7 +58,7 @@ const SelectDateForHoursReport = () => {
             id="year"
             type="number"
             min="2000"
-            max={new Date().getFullYear()}
+            max="2100"
             value={year}
             onChange={(e) => setYear(e.target.value)}
             placeholder="Ejemplo: 2024"

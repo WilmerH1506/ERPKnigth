@@ -6,18 +6,31 @@ import complaint from '../models/complaints.js';
 
 export const DatesperPatient = async (req, res) => {
   try {
-    const { id } = req.params; 
-   
+    const { id } = req.params;
+
     const patient = await Patients.findById(id);
     if (!patient) {
       return res.status(404).json({ message: 'Paciente no encontrado.' });
     }
+    const dates = await Dates.find({ Paciente: patient.Nombre });
 
-    const dates = await Dates.find({Paciente: patient.Nombre});
+    const enhancedDates = await Promise.all(
+      dates.map(async (date) => {
+        if (date.Estado === "Realizada") {
+          
+          const treatment = await Treatments.findOne({ Nombre: date.Tratamiento });
+
+          const totalPagado = treatment ? parseFloat(treatment.Precio) : 0;
+          return { ...date._doc, Total_Pagado: totalPagado };
+        } else {
+          return { ...date._doc, Total_Pagado: 0 }; 
+        }
+      })
+    );
 
     const result = {
       ...patient._doc,
-      dates, 
+      dates: enhancedDates,
     };
 
     res.status(200).json(result);

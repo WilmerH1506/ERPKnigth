@@ -13,12 +13,6 @@ const NavBar = () => {
       </div>
       <ul className="navbar-buttons">
         <li>
-          <NavLink to="/" className="nav-button" activeClassName="active">
-            <FaHome className="nav-icon" />
-            Dashboard
-          </NavLink>
-        </li>
-        <li>
           <NavLink to="/patients" className="nav-button" activeClassName="active">
             <FaUserFriends className="nav-icon" />
             Pacientes

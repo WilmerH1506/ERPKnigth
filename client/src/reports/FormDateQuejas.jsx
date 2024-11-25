@@ -25,7 +25,7 @@ const SelectDateForComplaints = () => {
 
   return (
     <div className="select-date-complaints-container">
-      <h1 className="select-date-complaints-title">Seleccionar Fecha para Reportes</h1>
+      <h1 className="select-date-complaints-title">Seleccionar Fecha para Reportes de queja</h1>
       <form onSubmit={handleSubmit} className="select-date-complaints-form">
         <div className="select-date-complaints-group">
           <label htmlFor="month" className="select-date-complaints-label">Mes:</label>
@@ -58,7 +58,7 @@ const SelectDateForComplaints = () => {
             id="year"
             type="number"
             min="2000"
-            max={new Date().getFullYear()}
+            max="2100"
             value={year}
             onChange={(e) => setYear(e.target.value)}
             placeholder="Ejemplo: 2024"

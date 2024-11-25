@@ -25,7 +25,7 @@ const SelectDateForReports = () => {
 
   return (
     <div className="select-date-reports-container">
-      <h1 className="select-date-reports-title">Seleccionar Fecha para Reportes</h1>
+      <h1 className="select-date-reports-title">Seleccionar Fecha para Reporte</h1>
       <form onSubmit={handleSubmit} className="select-date-reports-form">
         <div className="select-date-reports-group">
           <label htmlFor="month" className="select-date-reports-label">Mes:</label>
@@ -58,7 +58,7 @@ const SelectDateForReports = () => {
             id="year"
             type="number"
             min="2000"
-            max={new Date().getFullYear()}
+            max="2100"
             value={year}
             onChange={(e) => setYear(e.target.value)}
             placeholder="Ejemplo: 2024"
