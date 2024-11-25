@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import html2pdf from "html2pdf.js";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable"; 
 import "./DateCanceledReport.css";
 
 const DateCanceledReport = () => {
   const [datesData, setDatesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Número de elementos por página
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,26 +30,64 @@ const DateCanceledReport = () => {
   }, []);
 
   const handleDownloadPDF = () => {
-    const element = document.getElementById("date-canceled-report-container");
-    const options = {
-      margin: [10, 10],
-      filename: `reporte_cancelaciones.pdf`,
-      html2canvas: {
-        scale: 2,
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "letter",
-        orientation: "portrait",
-      },
-    };
+    const doc = new jsPDF("p", "mm", "letter"); // Formato carta
+    const tableStartY = 30;
+    const totalPages = Math.ceil(datesData.length / itemsPerPage);
 
-    html2pdf().set(options).from(element).save();
+    for (let page = 0; page < totalPages; page++) {
+      const startIdx = page * itemsPerPage;
+      const endIdx = startIdx + itemsPerPage;
+      const pageItems = datesData.slice(startIdx, endIdx);
+
+      if (page > 0) {
+        doc.addPage();
+      }
+
+      doc.setFontSize(16);
+      doc.text("Reporte de cancelación de citas", 14, 20); // Título
+      doc.setFontSize(12);
+      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
+      doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
+
+      const columns = [
+        { header: "Citas ID", dataKey: "id" },
+        { header: "Fecha", dataKey: "Fecha" },
+        { header: "Paciente", dataKey: "Paciente" },
+        { header: "Tratamiento", dataKey: "Tratamiento" },
+        { header: "Descripción", dataKey: "Descripcion" },
+      ];
+
+      const rows = pageItems.map((date, index) => ({
+        id: startIdx + index + 1,
+        Fecha: new Date(date.Fecha).toLocaleDateString(),
+        Paciente: date.Paciente,
+        Tratamiento: date.Tratamiento,
+        Descripcion: date.Descripcion,
+      }));
+
+      doc.autoTable({
+        head: [columns.map((col) => col.header)],
+        body: rows.map((row) => columns.map((col) => row[col.dataKey])),
+        startY: tableStartY,
+        theme: "grid",
+        styles: { fontSize: 10, cellPadding: 3 },
+      });
+    }
+
+    doc.save("reporte_cancelaciones.pdf");
   };
 
   const handleBack = () => {
     navigate("/reports");
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = datesData.slice(indexOfFirstItem, indexOfLastItem);
 
   if (loading) return <p>Cargando datos...</p>;
   if (error) return <p>{error}</p>;
@@ -80,9 +121,9 @@ const DateCanceledReport = () => {
             </tr>
           </thead>
           <tbody>
-            {datesData.map((date, index) => (
+            {currentItems.map((date, index) => (
               <tr key={index}>
-                <td>{index + 1}</td>
+                <td>{index + 1 + indexOfFirstItem}</td>
                 <td>{new Date(date.Fecha).toLocaleDateString()}</td>
                 <td>{date.Paciente}</td>
                 <td>{date.Tratamiento}</td>
@@ -91,6 +132,25 @@ const DateCanceledReport = () => {
             ))}
           </tbody>
         </table>
+
+        {/* Paginación */}
+        <div className="pagination-container inventory-pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-btn inventory-pagination-button"
+          >
+            Anterior
+          </button>
+          <span className="pagination-info">Página {currentPage}</span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === Math.ceil(datesData.length / itemsPerPage)}
+            className="pagination-btn inventory-pagination-button"
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
     </div>
   );

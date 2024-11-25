@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import html2pdf from "html2pdf.js";  
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 import "./RevenueReport.css";
 
 const ReportesServicios = () => {
-  const { date } = useParams(); 
+  const { date } = useParams();
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Número de filas por página
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,20 +19,20 @@ const ReportesServicios = () => {
         const data = await response.json();
 
         if (data.revenue) {
-          let idCounter = 1; 
+          let idCounter = 1;
           const formattedData = Object.entries(data.revenue)
             .map(([servicio, details]) =>
               details.pacientes.map((paciente, i) => ({
-                id: idCounter++, 
-                servicio, 
-                paciente, 
-                costo: details.total / details.pacientes.length, 
-                fecha: details.fechas[i], 
-                cantidad: 1, 
-                total: details.total / details.pacientes.length, 
+                id: idCounter++,
+                servicio,
+                paciente,
+                costo: details.total / details.pacientes.length,
+                fecha: details.fechas[i],
+                cantidad: 1,
+                total: details.total / details.pacientes.length,
               }))
             )
-            .flat(); 
+            .flat();
 
           setReportData(formattedData);
         }
@@ -45,22 +48,72 @@ const ReportesServicios = () => {
   }, [date]);
 
   const handleDownloadPDF = () => {
-    const element = document.getElementById("reportes-servicios-container");  
-    const options = {
-      margin: [10, 10],
-      filename: `reporte_servicios_${date}.pdf`, 
-      html2canvas: {
-        scale: 2,
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "letter",
-        orientation: "portrait",
-      },
-    };
+    const doc = new jsPDF("p", "mm", "letter");
+    const tableStartY = 30;
+    const totalPages = Math.ceil(reportData.length / itemsPerPage);
 
-    html2pdf().set(options).from(element).save();  
+    for (let page = 0; page < totalPages; page++) {
+      const startIdx = page * itemsPerPage;
+      const endIdx = startIdx + itemsPerPage;
+      const pageItems = reportData.slice(startIdx, endIdx);
+
+      if (page > 0) {
+        doc.addPage();
+      }
+
+      doc.setFontSize(16);
+      doc.text("Reporte de Servicios", 14, 20);
+      doc.setFontSize(12);
+      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
+      doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
+
+      const columns = [
+        { header: "Servicio ID", dataKey: "id" },
+        { header: "Nombre Paciente", dataKey: "paciente" },
+        { header: "Servicio", dataKey: "servicio" },
+        { header: "Fecha", dataKey: "fecha" },
+        { header: "Costo", dataKey: "costo" },
+        { header: "Cantidad", dataKey: "cantidad" },
+        { header: "Total", dataKey: "total" },
+      ];
+
+      const rows = pageItems.map((item) => ({
+        id: item.id,
+        paciente: item.paciente,
+        servicio: item.servicio,
+        fecha: item.fecha
+          ? new Date(item.fecha).toLocaleDateString("es-ES")
+          : "Fecha no disponible",
+        costo: item.costo.toLocaleString("es-HN", {
+          style: "currency",
+          currency: "HNL",
+        }),
+        cantidad: item.cantidad,
+        total: item.total.toLocaleString("es-HN", {
+          style: "currency",
+          currency: "HNL",
+        }),
+      }));
+
+      doc.autoTable({
+        head: [columns.map((col) => col.header)],
+        body: rows.map((row) => columns.map((col) => row[col.dataKey])),
+        startY: tableStartY,
+        theme: "grid",
+        styles: { fontSize: 10, cellPadding: 3 },
+      });
+    }
+
+    doc.save(`reporte_servicios_${date}.pdf`);
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = reportData.slice(indexOfFirstItem, indexOfLastItem);
 
   if (loading) return <p>Cargando datos...</p>;
 
@@ -70,10 +123,7 @@ const ReportesServicios = () => {
         <button className="btn exit-btn" onClick={() => navigate(-1)}>
           ← Regresar
         </button>
-        <button
-          className="btn save-btn"
-          onClick={handleDownloadPDF} 
-        >
+        <button className="btn save-btn" onClick={handleDownloadPDF}>
           Guardar como PDF
         </button>
       </div>
@@ -82,7 +132,6 @@ const ReportesServicios = () => {
         <h1 className="reportes-titulo">Reporte de Servicios</h1>
         <p>Fecha de emisión: {new Date().toLocaleDateString("es-ES")}</p>
 
-        {/* Tabla de datos */}
         <table className="reportes-tabla">
           <thead>
             <tr>
@@ -96,7 +145,7 @@ const ReportesServicios = () => {
             </tr>
           </thead>
           <tbody>
-            {reportData.map((item, index) => (
+            {currentItems.map((item, index) => (
               <tr key={index}>
                 <td>{item.id}</td>
                 <td>{item.paciente}</td>
@@ -123,6 +172,24 @@ const ReportesServicios = () => {
             ))}
           </tbody>
         </table>
+
+        <div className="pagination-container inventory-pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-btn inventory-pagination-button"
+          >
+            Anterior
+          </button>
+          <span className="pagination-info ">Página {currentPage}</span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === Math.ceil(reportData.length / itemsPerPage)}
+            className="pagination-btn inventory-pagination-button"
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
     </div>
   );

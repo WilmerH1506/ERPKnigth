@@ -27,7 +27,7 @@ const App = () => {
         <NavBar />
         <div className="content">
           <Routes>
-            <Route path="/" element={<DashboardCards />} />
+            <Route path="/" element={<Patients />} />
             <Route path="/patients" element={<Patients />} />
             <Route path="/dates" element={<Dates />} />
             <Route path="/inventory" element={<Inventory />} />

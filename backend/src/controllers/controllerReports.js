@@ -152,58 +152,70 @@ export const getComplaintsPerMonth = async (req, res) => {
 }
 
 export const PatientsDropouts = async (req, res) => {
-    try {
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  try {
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-        const patientsWithRecentAppointments = await Dates.aggregate([
-            {
-                $match: {
-                    Estado: "Realizada",
-                    Fecha: { $gte: sixMonthsAgo } 
-                }
-            },
-            {
-                $group: {
-                    _id: "$Paciente", 
-                    lastAppointment: { $max: "$Fecha" }, 
-                    treatment: { $first: "$Tratamiento" }, 
-                    description: { $first: "$Descripcion" } 
-                }
-            }
-        ]);
+      const patientsWithRecentAppointments = await Dates.aggregate([
+          {
+              $match: {
+                  Estado: "Realizada",
+              },
+          },
+          {
+              $group: {
+                  _id: "$Paciente", 
+                  lastAppointment: { $max: "$Fecha" }, 
+                  treatment: { $first: "$Tratamiento" }, 
+                  description: { $first: "$Descripcion" }, 
+              },
+          },
+      ]);
 
-       
-        const patientsWithoutAppointments = await Patients.find({
-            Nombre: { $nin: patientsWithRecentAppointments.map(p => p._id) }
-        });
+      const patientsWithoutRecentAppointments = patientsWithRecentAppointments.filter(
+          (p) => new Date(p.lastAppointment) < sixMonthsAgo
+      );
 
-        const dropouts = [];
+      const recentPatients = patientsWithRecentAppointments.map((p) => p._id);
 
-        
-        for (let patient of patientsWithoutAppointments) {
-            const lastAppointment = await Dates.findOne({
-                Paciente: patient.Nombre,
-                Estado: "Realizada"
-            }).sort({ Fecha: -1 });
+     
+      const patientsWithoutAppointments = await Patients.find({
+          Nombre: { $nin: recentPatients },
+      });
 
-            if (lastAppointment) {
-                dropouts.push({
-                    Nombre: patient.Nombre,
-                    Tratamiento: lastAppointment.Tratamiento,
-                    Descripcion: lastAppointment.Descripcion,
-                    Fecha: lastAppointment.Fecha
-                });
-            } 
-        }
+      const dropouts = [];
 
-        res.status(200).json(dropouts);
+      for (let patient of patientsWithoutAppointments) {
+          const lastAppointment = await Dates.findOne({
+              Paciente: patient.Nombre,
+              Estado: "Realizada",
+          }).sort({ Fecha: -1 });
 
-    } catch (error) {
-        console.error("Error al obtener los pacientes desertores:", error);
-        res.status(400).json({ message: error.message });
-    }
-}
+          if (lastAppointment) {
+              dropouts.push({
+                  Nombre: patient.Nombre,
+                  Tratamiento: lastAppointment.Tratamiento,
+                  Descripcion: lastAppointment.Descripcion,
+                  Fecha: lastAppointment.Fecha,
+              });
+          }
+      }
+
+      for (let patient of patientsWithoutRecentAppointments) {
+          dropouts.push({
+              Nombre: patient._id,
+              Tratamiento: patient.treatment,
+              Descripcion: patient.description,
+              Fecha: patient.lastAppointment,
+          });
+      }
+
+      res.status(200).json(dropouts);
+  } catch (error) {
+      console.error("Error al obtener los pacientes desertores:", error);
+      res.status(400).json({ message: error.message });
+  }
+};
 
 export const NewPatients = async (req, res) => {
     const { date } = req.params;

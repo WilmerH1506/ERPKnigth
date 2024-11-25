@@ -23,6 +23,10 @@ const Inventory = () => {
   });
   const [productToDelete, setProductToDelete] = useState(null);
 
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   useEffect(() => {
     const fetchInventory = async () => {
       try {
@@ -123,6 +127,16 @@ const Inventory = () => {
     return date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Cálculo de la paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = inventory.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(inventory.length / itemsPerPage);
+
   const inputs = [
     {
       label: 'Producto',
@@ -168,58 +182,81 @@ const Inventory = () => {
     <div className="inventory-container">
       <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={true} />
 
-      {isLoading && (
+      {isLoading ? (
         <div className="loading-overlay">
           <div className="spinner"></div>
         </div>
+      ) : (
+        <div>
+          <div className="header">
+            <h1>Inventario</h1>
+            <button className="new-product-button" onClick={() => openModal()}>
+              <FaPlus className="plus-icon" /> Producto Nuevo
+            </button>
+          </div>
+
+          <div className="inventory-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoria</th>
+                  <th>Descripcion</th>
+                  <th>Distribuidor</th>
+                  <th>Caducidad</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Total</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentItems.map((product) => (
+                  <tr key={product._id}>
+                    <td>{product.Producto}</td>
+                    <td>{product.Categoria}</td>
+                    <td>{product.Descripcion}</td>
+                    <td>{product.Distribuidor}</td>
+                    <td>{formatDate(product.Caducidad)}</td>
+                    <td>{product.Cantidad}</td>
+                    <td>{product.Precio}</td>
+                    <td>{(product.Cantidad * product.Precio).toFixed(2)}</td>
+                    <td>
+                      <button className="edit-button" onClick={() => openModal(product)}>
+                        <FaEdit /> Editar
+                      </button>
+                      <button className="delete-button" onClick={() => openConfirmation(product._id)}>
+                        <FaTrashAlt /> Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Paginación */}
+          <div className="pagination-container inventory-pagination">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-btn inventory-pagination-button"
+            >
+              Anterior
+            </button>
+            <span className="pagination-info">
+              Página {currentPage} de {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-btn inventory-pagination-button"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
       )}
-
-      <div className="header">
-        <h1>Inventario</h1>
-        <button className="new-product-button" onClick={() => openModal()}>
-          <FaPlus className="plus-icon" /> Producto Nuevo
-        </button>
-      </div>
-
-      <div className="inventory-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Categoria</th>
-              <th>Descripcion</th>
-              <th>Distribuidor</th>
-              <th>Caducidad</th>
-              <th>Cantidad</th>
-              <th>Precio</th>
-              <th>Total</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {inventory.map((product) => (
-              <tr key={product._id}>
-                <td>{product.Producto}</td>
-                <td>{product.Categoria}</td>
-                <td>{product.Descripcion}</td>
-                <td>{product.Distribuidor}</td>
-                <td>{formatDate(product.Caducidad)}</td>
-                <td>{product.Cantidad}</td>
-                <td>{product.Precio}</td>
-                <td>{(product.Cantidad * product.Precio).toFixed(2)}</td>
-                <td>
-                  <button className="edit-button" onClick={() => openModal(product)}>
-                    <FaEdit /> Editar
-                  </button>
-                  <button className="delete-button" onClick={() => openConfirmation(product._id)}>
-                    <FaTrashAlt /> Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
 
       <Modal
         isOpen={isModalOpen}
@@ -239,5 +276,4 @@ const Inventory = () => {
   );
 };
 
-
-export default Inventory
+export default Inventory;

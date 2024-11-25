@@ -24,7 +24,10 @@ const Dates = () => {
     Estado: '',
   });
   const [dateToDelete, setDateToDelete] = useState(null);
-  
+
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     const fetchDates = async () => {
@@ -105,7 +108,7 @@ const Dates = () => {
     try {
       setIsLoading(true);
       await deleteDate(dateToDelete);
-      setDates(dates.filter(date => date._id !== dateToDelete));
+      setDates(dates.filter((date) => date._id !== dateToDelete));
       toast.success('Cita eliminada con éxito!');
       closeConfirmation();
     } catch (error) {
@@ -126,7 +129,17 @@ const Dates = () => {
     const { name, value } = e.target;
     setCurrentDate({ ...currentDate, [name]: value });
   };
-  
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Cálculo de la paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = dates.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(dates.length / itemsPerPage);
+
   const inputs = [
     {
       label: 'Fecha',
@@ -226,7 +239,7 @@ const Dates = () => {
                 </tr>
               </thead>
               <tbody>
-                {dates.map((date) => (
+                {currentItems.map((date) => (
                   <tr key={date._id}>
                     <td>{formatDate(date.Fecha)}</td>
                     <td>{date.Hora_Ingreso}</td>
@@ -248,6 +261,27 @@ const Dates = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Paginación */}
+          <div className="pagination-container inventory-pagination">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-btn inventory-pagination-button"
+            >
+              Anterior
+            </button>
+            <span className="pagination-info">
+              Página {currentPage} de {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-btn inventory-pagination-button"
+            >
+              Siguiente
+            </button>
           </div>
         </div>
       )}
