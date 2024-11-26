@@ -27,7 +27,6 @@ const FreeHoursReport = () => {
         if (Array.isArray(fetchedData)) {
           const [month, year] = date.split("-").map(Number);
 
-          // Filtrar datos para incluir solo el mes solicitado
           const filteredData = fetchedData.map((doctorData) => ({
             ...doctorData,
             dates: doctorData.dates.filter((day) => {
@@ -55,7 +54,7 @@ const FreeHoursReport = () => {
   const calculateTotals = (dates) =>
     dates.reduce(
       (acc, day) => {
-        acc.occupied += 10 - day.freeHours.length; // 10 horas laborales por día
+        acc.occupied += 10 - day.freeHours.length;
         acc.free += day.freeHours.length;
         return acc;
       },
@@ -70,7 +69,6 @@ const FreeHoursReport = () => {
     ),
   }));
 
-  // Obtener rango de fechas para la página actual
   const currentDates = itemsToShow[0]?.dates || [];
   const startDate = currentDates[0]?.date.split("-")[2];
   const endDate = currentDates[currentDates.length - 1]?.date.split("-")[2];
@@ -82,7 +80,7 @@ const FreeHoursReport = () => {
     html2canvas(container, { scale: 2 }).then((canvas) => {
       const pdf = new jsPDF("p", "mm", "a4");
       const imgData = canvas.toDataURL("image/png");
-      pdf.addImage(imgData, "PNG", 10, 10, 190, 0); // Ajustar para que quepa en una página
+      pdf.addImage(imgData, "PNG", 10, 10, 190, 0); 
       pdf.save(`reporte_horas_libres_${date}.pdf`);
     });
   };
@@ -164,23 +162,38 @@ const FreeHoursReport = () => {
       <div className="free-report-charts-container">
         <h3>Distribución de Horas por Doctora</h3>
         <div className="free-report-charts-row">
-          {data.map((doctorData, index) => {
-            const totals = calculateTotals(doctorData.dates);
-            const pieData = {
-              labels: ["Horas Ocupadas", "Horas Libres"],
-              datasets: [
-                {
-                  data: [totals.occupied, totals.free],
-                  backgroundColor: ["#FF6384", "#36A2EB"],
-                  hoverBackgroundColor: ["#FF6384", "#36A2EB"],
-                },
-              ],
-            };
+        {data.map((doctorData, index) => {
+              const totals = calculateTotals(doctorData.dates);
+              const totalHours = totals.occupied + totals.free;
 
+              const pieData = {
+                labels: ["Horas Ocupadas", "Horas Libres"],
+                datasets: [
+                  {
+                    data: [totals.occupied, totals.free],
+                    backgroundColor: ["#FF6384", "#36A2EB"],
+                    hoverBackgroundColor: ["#FF6384", "#36A2EB"],
+                  },
+                ],
+              };
+
+             const pieOptions = {
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: function (tooltipItem) {
+                        const value = tooltipItem.raw;
+                        const percentage = ((value / totalHours) * 100).toFixed(2);
+                        return `${tooltipItem.label}: ${percentage}%`;
+                      },
+                    },
+                  },
+                },
+              };
             return (
               <div key={index} className="free-report-chart-item">
                 <h4>{doctorData.doctor}</h4>
-                <Pie data={pieData} />
+                <Pie data={pieData} options={pieOptions} />
               </div>
             );
           })}

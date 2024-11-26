@@ -74,6 +74,10 @@ useEffect(() => {
       doc.addImage(logo, "JPEG", 180, 10, 20, 20);
       doc.setFontSize(12);
       doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
+      doc.text(`Total generado: ${totalRevenue.toLocaleString("es-HN", {
+        style: "currency",
+        currency: "HNL",
+      })}`, 14, 30);
       doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
 
       const columns = [

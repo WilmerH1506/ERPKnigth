@@ -296,58 +296,59 @@ export const NewPatientsByYear = async (req, res) => {
 };
 
 export const FreeHoursPerDoctor = async (req, res) => {
-    try {
-        const { date } = req.params;
-    
-        const [month, year] = date.split('-').map(Number);
-    
-        if (!year || !month || month < 1 || month > 12) {
-          return res.status(400).json({ message: "Por favor, proporcione 'date' en el formato 'MM-YYYY'." });
-        }
-    
-        const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0)); 
-        const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59)); 
-    
-        const appointments = await Dates.find({
-          Estado: "Pendiente",
-          Fecha: { $gte: startDate, $lte: endDate }
-        });
-    
-        const workingHours = Array.from({ length: 10 }, (_, i) => `${8 + i}:00`);
-    
-        const totalDaysInMonth = endDate.getUTCDate();
-        const monthDates = Array.from({ length: totalDaysInMonth }, (_, i) => {
-          const date = new Date(Date.UTC(year, month - 1, i + 1));
-          return date.toISOString().split('T')[0];
-        });
-    
-        const groupedAppointments = appointments.reduce((acc, appointment) => {
-          const dateKey = appointment.Fecha.toISOString().split("T")[0];
-          const doctor = appointment.Odontologo;
-    
-          if (!acc[doctor]) acc[doctor] = {};
-          if (!acc[doctor][dateKey]) acc[doctor][dateKey] = [];
-    
-          acc[doctor][dateKey].push(appointment.Hora_Ingreso);
-          return acc;
-        }, {});
-    
-        const result = Object.keys(groupedAppointments).map((doctor) => {
-          const dates = monthDates.map((date) => {
-            const busyHours = groupedAppointments[doctor]?.[date]?.map((hour) =>
-              hour.startsWith("0") ? hour.slice(1) : hour
-            ) || [];
-            const freeHours = workingHours.filter(hour => !busyHours.includes(hour));
-            return { date, freeHours };
-          });
-    
-          return { doctor, dates };
-        });
-    
-        res.status(200).json(result);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error al obtener las horas libres.", error: error.message });
-      }
-    
-  };
+  try {
+    const { date } = req.params;
+
+    const [month, year] = date.split('-').map(Number);
+
+    if (!year || !month || month < 1 || month > 12) {
+      return res.status(400).json({ message: "Por favor, proporcione 'date' en el formato 'MM-YYYY'." });
+    }
+
+    const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
+
+    const doctors = await Dates.distinct("Odontologo");
+
+    const workingHours = Array.from({ length: 10 }, (_, i) => `${8 + i}:00`);
+
+    const totalDaysInMonth = endDate.getUTCDate();
+    const monthDates = Array.from({ length: totalDaysInMonth }, (_, i) => {
+      const date = new Date(Date.UTC(year, month - 1, i + 1));
+      return date.toISOString().split('T')[0];
+    });
+
+    const appointments = await Dates.find({
+      Estado: "Pendiente",
+      Fecha: { $gte: startDate, $lte: endDate },
+    });
+
+    const groupedAppointments = appointments.reduce((acc, appointment) => {
+      const dateKey = appointment.Fecha.toISOString().split("T")[0];
+      const doctor = appointment.Odontologo;
+
+      if (!acc[doctor]) acc[doctor] = {};
+      if (!acc[doctor][dateKey]) acc[doctor][dateKey] = [];
+
+      acc[doctor][dateKey].push(appointment.Hora_Ingreso);
+      return acc;
+    }, {});
+
+    const result = doctors.map((doctor) => {
+      const dates = monthDates.map((date) => {
+        const busyHours = groupedAppointments[doctor]?.[date]?.map((hour) =>
+          hour.startsWith("0") ? hour.slice(1) : hour
+        ) || [];
+        const freeHours = workingHours.filter(hour => !busyHours.includes(hour));
+        return { date, freeHours };
+      });
+
+      return { doctor, dates };
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener las horas libres.", error: error.message });
+  }
+};
