@@ -39,22 +39,10 @@ const ReporteCitas = () => {
   const handleSavePDF = () => {
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
-    const rowsPerPage = 5;
-    const totalRows = patientData.dates.length;
-    const totalPages = Math.ceil(totalRows / rowsPerPage);
-
-    doc.setFontSize(16);
-    doc.text("Reporte de Citas por Paciente", 14, 20);
-    doc.addImage(logo, "JPEG", 180, 10, 20, 20);
-    doc.setFontSize(12);
-    doc.text(`Paciente: ${patientData.Nombre}`, 14, 30);
-    doc.text(`ID: ${patientData.DNI}`, 14, 40);
-    doc.text(`Sexo: ${patientData.Sexo}`, 14, 50);
-    doc.text(`Correo: ${patientData.Correo}`, 14, 60);
-    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 70);
-
-    const tableStartY = 80;
+    const tableStartY = 55;
     const columns = ["Cita ID", "Fecha de cita", "Hora", "Razón", "Odontólogo", "Estado", "Total Pagado"];
+  
+    // Mapeamos las citas del paciente
     const rows = patientData.dates.map((cita, index) => [
       index + 1,
       new Date(cita.Fecha).toLocaleDateString(),
@@ -64,31 +52,38 @@ const ReporteCitas = () => {
       cita.Estado,
       cita.Total_Pagado || "Pendiente de Pago"
     ]);
-
+  
+    doc.setFontSize(16);
+    doc.text("Reporte de Citas por Paciente", 14, 20);
+    doc.addImage(logo, "JPEG", 180, 10, 20, 20);
+    doc.setFontSize(12);
+  
+    // Mostrar datos del paciente en dos columnas
+    const marginLeft = 14;
+    const marginTop = 30;
+    const columnSpacing = 100; // Espacio entre las dos columnas
+  
+    doc.text(`Paciente: ${patientData.Nombre}`, marginLeft, marginTop);
+    doc.text(`ID: ${patientData.DNI}`, marginLeft + columnSpacing, marginTop);
+  
+    doc.text(`Sexo: ${patientData.Sexo}`, marginLeft, marginTop + 10);
+    doc.text(`Correo: ${patientData.Correo}`, marginLeft + columnSpacing, marginTop + 10);
+  
+    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, marginLeft, marginTop + 20);
     
-    const tableOptions = {
-      startY: tableStartY,
-      head: [columns],
-      body: rows.slice(0, rowsPerPage),
-      theme: "grid",
-      margin: { top: 10 },
-    };
-    
-    doc.autoTable(tableOptions);
-
-    let currentPageNum = 1;
-    while (currentPageNum < totalPages) {
-      doc.addPage();
-      const rowsToAdd = rows.slice(currentPageNum * rowsPerPage, (currentPageNum + 1) * rowsPerPage);
-      doc.autoTable({ 
-        startY: 20,
+    doc.autoTable(
+      { 
+        startY: tableStartY,
         head: [columns],
-        body: rowsToAdd,
+        body: rows,
         theme: "grid",
-      });
-      currentPageNum++;
-    }
-
+        styles: { fontSize: 10, cellPadding: 3, halign: "center", valign: "middle" },
+        headStyles: { fillColor: [21, 153, 155], textColor: 255, halign: "center" },
+        bodyStyles: { textColor: 50, halign: "center" },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+      }
+    );
+  
     const pdfFileName = `reporte_citas_${patientData.Nombre.replace(/\s+/g, '_')}_${new Date().toLocaleDateString()}.pdf`;
     doc.save(pdfFileName);
   };

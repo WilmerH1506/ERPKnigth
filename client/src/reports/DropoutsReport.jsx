@@ -33,51 +33,62 @@ const ReporteAbandono = () => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter"); // Formato carta
     const tableStartY = 30;
-    const totalPages = Math.ceil(dropoutsData.length / itemsPerPage);
-
-    for (let page = 0; page < totalPages; page++) {
-      const startIdx = page * itemsPerPage;
-      const endIdx = startIdx + itemsPerPage;
-      const pageItems = dropoutsData.slice(startIdx, endIdx);
-
-      if (page > 0) {
-        doc.addPage();
-      }
-
-      doc.setFontSize(16);
-      doc.text("Reporte de Pacientes Desertores", 14, 20);
-      doc.addImage(logo, "JPEG", 180, 10, 20, 20);
-      doc.setFontSize(12);
-      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
-      doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
-
-      const columns = [
-        { header: "ID", dataKey: "id" },
-        { header: "Nombre del Paciente", dataKey: "Nombre" },
-        { header: "Tratamiento", dataKey: "Tratamiento" },
-        { header: "Descripción", dataKey: "Descripcion" },
-        { header: "Fecha", dataKey: "Fecha" },
-      ];
-
-      const rows = pageItems.map((dropout, index) => ({
-        id: startIdx + index + 1,
-        Nombre: dropout.Nombre,
-        Tratamiento: dropout.Tratamiento,
-        Descripcion: dropout.Descripcion,
-        Fecha: new Date(dropout.Fecha).toLocaleDateString(),
-      }));
-
-      doc.autoTable({
-        head: [columns.map((col) => col.header)],
-        body: rows.map((row) => columns.map((col) => row[col.dataKey])),
-        startY: tableStartY,
-        theme: "grid",
-        styles: { fontSize: 10, cellPadding: 3 },
-      });
-    }
-
+  
+    // Configuración del título y encabezado
+    doc.setFontSize(16);
+    doc.text("Reporte de Pacientes Desertores", 14, 20);
+    doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
+    doc.setFontSize(12);
+    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
+  
+    // Configuración de columnas y datos
+    const columns = [
+      { header: "ID", dataKey: "id" },
+      { header: "Nombre del Paciente", dataKey: "Nombre" },
+      { header: "Tratamiento", dataKey: "Tratamiento" },
+      { header: "Descripción", dataKey: "Descripcion" },
+      { header: "Fecha", dataKey: "Fecha" },
+    ];
+  
+    const rows = dropoutsData.map((dropout, index) => ({
+      id: index + 1,
+      Nombre: dropout.Nombre,
+      Tratamiento: dropout.Tratamiento,
+      Descripcion: dropout.Descripcion,
+      Fecha: new Date(dropout.Fecha).toLocaleDateString(),
+    }));
+  
+    // Generar tabla con todos los datos
+    doc.autoTable({
+      head: [columns.map((col) => col.header)],
+      body: rows.map((row) => columns.map((col) => row[col.dataKey])),
+      startY: tableStartY,
+      theme: "grid",
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        halign: "center", 
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [21, 153, 155], // Color #15999B en formato RGB
+        textColor: 255, // Texto blanco
+        fontStyle: "bold",
+        halign: "center",
+      },
+      bodyStyles: {
+        textColor: 50, // Texto negro
+        valign: "middle",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245], // Color de fondo alternado
+      },
+    });
+  
+    // Guardar el PDF
     doc.save("reporte_desertores.pdf");
   };
+  
 
   const handleBack = () => {
     navigate("/reports");

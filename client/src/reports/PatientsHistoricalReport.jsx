@@ -56,14 +56,81 @@ const ReporteCrecimiento = () => {
   }, [month, year]);
 
   const handleDownloadPDF = async () => {
-    const container = document.getElementById("reporte-crecimiento-contenedor");
-
-    html2canvas(container, { scale: 5 }).then((canvas) => {
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgData = canvas.toDataURL("image/png");
-      pdf.addImage(imgData, "PNG", 10, 10, 190, 120);
-      pdf.save(`reporte_crecimiento_${month}-${year}.pdf`);
+    const pdf = new jsPDF("p", "mm", "a4");
+  
+    pdf.setFontSize(16);
+    pdf.text("Reporte Estadístico de Nuevos Pacientes", 14, 20);
+    pdf.addImage(logo, "JPEG", 180, 10, 20, 20); 
+    pdf.setFontSize(12);
+    pdf.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
+    pdf.text(
+      `Estadistica del mes: ${new Date(year, month - 1).toLocaleString("es-ES", {
+        month: "long",
+        year: "numeric",
+      })}`,
+      14,
+      32
+    );
+  
+    const rows = weeklyData.map((item) => [
+      item.Semana,
+      new Date(item.FechaInicio).toLocaleDateString(),
+      new Date(item.FechaFin).toLocaleDateString(),
+      item.CantidadPacientesNuevos,
+    ]);
+  
+    pdf.autoTable({
+      startY: 40, 
+      head: [["Semana", "Fecha Inicio", "Fecha Fin", "Nuevos Pacientes"]],
+      body: rows,
+      foot: [
+        [
+          { content: "Total", colSpan: 3, styles: { halign: "right" } },
+          weeklyData.reduce((sum, item) => sum + item.CantidadPacientesNuevos, 0),
+        ],
+      ],
+      theme: "grid",
+      styles: { 
+        fontSize: 10, 
+        cellPadding: 3,
+        halign: "center", 
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [21, 153, 155],
+        textColor: 255,
+        halign: "center",
+      },
+      bodyStyles: {
+        textColor: 50,
+        halign: "center",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+      footStyles: {
+        fillColor: [160, 199, 200], 
+        textColor: 255, 
+        fontStyle: "bold", 
+      },
     });
+  
+    const canvas = await html2canvas(document.querySelector(".reporte-crecimiento-grafico"), {
+      scale: 2,
+    });
+    const imgData = canvas.toDataURL("image/png");
+  
+    const chartStartY = pdf.autoTable.previous.finalY + 10; // Ajustar posición de la gráfica
+    const pageHeight = pdf.internal.pageSize.height;
+  
+    if (chartStartY + 90 > pageHeight) {
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 15, 20, 180, 90);
+    } else {
+      pdf.addImage(imgData, "PNG", 15, chartStartY, 180, 90);
+    }
+  
+    pdf.save(`reporte_estadistico_pacientesNuevos_${month}-${year}.pdf`);
   };
 
   const chartData = {

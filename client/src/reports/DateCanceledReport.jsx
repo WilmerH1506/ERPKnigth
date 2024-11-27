@@ -33,49 +33,59 @@ const DateCanceledReport = () => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter"); // Formato carta
     const tableStartY = 30;
-    const totalPages = Math.ceil(datesData.length / itemsPerPage);
-
-    for (let page = 0; page < totalPages; page++) {
-      const startIdx = page * itemsPerPage;
-      const endIdx = startIdx + itemsPerPage;
-      const pageItems = datesData.slice(startIdx, endIdx);
-
-      if (page > 0) {
-        doc.addPage();
-      }
-
-      doc.setFontSize(16);
-      doc.text("Reporte de cancelación de citas", 14, 20);      
-      doc.addImage(logo, "JPEG", 180, 10, 20, 20);
-      doc.setFontSize(12);
-      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
-      doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
-
-      const columns = [
-        { header: "Citas ID", dataKey: "id" },
-        { header: "Fecha", dataKey: "Fecha" },
-        { header: "Paciente", dataKey: "Paciente" },
-        { header: "Tratamiento", dataKey: "Tratamiento" },
-        { header: "Descripción", dataKey: "Descripcion" },
-      ];
-
-      const rows = pageItems.map((date, index) => ({
-        id: startIdx + index + 1,
-        Fecha: new Date(date.Fecha).toLocaleDateString(),
-        Paciente: date.Paciente,
-        Tratamiento: date.Tratamiento,
-        Descripcion: date.Descripcion,
-      }));
-
-      doc.autoTable({
-        head: [columns.map((col) => col.header)],
-        body: rows.map((row) => columns.map((col) => row[col.dataKey])),
-        startY: tableStartY,
-        theme: "grid",
-        styles: { fontSize: 10, cellPadding: 3 },
-      });
-    }
-
+  
+    // Configuración del título y encabezado
+    doc.setFontSize(16);
+    doc.text("Reporte de cancelación de citas", 14, 20);
+    doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
+    doc.setFontSize(12);
+    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
+  
+    // Configuración de columnas y datos
+    const columns = [
+      { header: "Citas ID", dataKey: "id" },
+      { header: "Fecha", dataKey: "Fecha" },
+      { header: "Paciente", dataKey: "Paciente" },
+      { header: "Tratamiento", dataKey: "Tratamiento" },
+      { header: "Descripción", dataKey: "Descripcion" },
+    ];
+  
+    const rows = datesData.map((date, index) => ({
+      id: index + 1,
+      Fecha: new Date(date.Fecha).toLocaleDateString(),
+      Paciente: date.Paciente,
+      Tratamiento: date.Tratamiento,
+      Descripcion: date.Descripcion,
+    }));
+  
+    // Generar tabla con todos los datos
+    doc.autoTable({
+      head: [columns.map((col) => col.header)],
+      body: rows.map((row) => columns.map((col) => row[col.dataKey])),
+      startY: tableStartY,
+      theme: "grid",
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        halign: "center", 
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [21, 153, 155], 
+        textColor: 255, 
+        fontStyle: "bold",
+        halign: "center",
+      },
+      bodyStyles: {
+        textColor: 50, 
+        valign: "middle",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245], // Color de fondo alternado
+      },
+    });
+  
+    // Guardar el PDF
     doc.save("reporte_cancelaciones.pdf");
   };
 

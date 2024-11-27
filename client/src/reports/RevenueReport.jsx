@@ -55,70 +55,85 @@ useEffect(() => {
   fetchData();
 }, [date]);
 
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF("p", "mm", "letter");
-    const tableStartY = 30;
-    const totalPages = Math.ceil(reportData.length / itemsPerPage);
+const handleDownloadPDF = () => {
+  const doc = new jsPDF("p", "mm", "letter"); // Formato carta
+  const tableStartY = 35;
 
-    for (let page = 0; page < totalPages; page++) {
-      const startIdx = page * itemsPerPage;
-      const endIdx = startIdx + itemsPerPage;
-      const pageItems = reportData.slice(startIdx, endIdx);
+  // Configuración del título y encabezado
+  doc.setFontSize(16);
+  doc.text("Reporte de Servicios", 14, 20);
+  doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
+  doc.setFontSize(12);
+  doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
+  doc.text(
+    `Total generado: ${totalRevenue.toLocaleString("es-HN", {
+      style: "currency",
+      currency: "HNL",
+    })}`,
+    14,
+    32
+  );
 
-      if (page > 0) {
-        doc.addPage();
-      }
+  // Configuración de columnas y filas
+  const columns = [
+    { header: "Servicio ID", dataKey: "id" },
+    { header: "Nombre Paciente", dataKey: "paciente" },
+    { header: "Servicio", dataKey: "servicio" },
+    { header: "Fecha", dataKey: "fecha" },
+    { header: "Costo", dataKey: "costo" },
+    { header: "Cantidad", dataKey: "cantidad" },
+    { header: "Total", dataKey: "total" },
+  ];
 
-      doc.setFontSize(16);
-      doc.text("Reporte de Servicios", 14, 20);
-      doc.addImage(logo, "JPEG", 180, 10, 20, 20);
-      doc.setFontSize(12);
-      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
-      doc.text(`Total generado: ${totalRevenue.toLocaleString("es-HN", {
-        style: "currency",
-        currency: "HNL",
-      })}`, 14, 30);
-      doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
+  const rows = reportData.map((item) => ({
+    id: item.id,
+    paciente: item.paciente,
+    servicio: item.servicio,
+    fecha: item.fecha
+      ? new Date(item.fecha).toLocaleDateString("es-ES")
+      : "Fecha no disponible",
+    costo: item.costo.toLocaleString("es-HN", {
+      style: "currency",
+      currency: "HNL",
+    }),
+    cantidad: item.cantidad,
+    total: item.total.toLocaleString("es-HN", {
+      style: "currency",
+      currency: "HNL",
+    }),
+  }));
 
-      const columns = [
-        { header: "Servicio ID", dataKey: "id" },
-        { header: "Nombre Paciente", dataKey: "paciente" },
-        { header: "Servicio", dataKey: "servicio" },
-        { header: "Fecha", dataKey: "fecha" },
-        { header: "Costo", dataKey: "costo" },
-        { header: "Cantidad", dataKey: "cantidad" },
-        { header: "Total", dataKey: "total" },
-      ];
+  // Generar tabla
+  doc.autoTable({
+    head: [columns.map((col) => col.header)],
+    body: rows.map((row) => columns.map((col) => row[col.dataKey])),
+    startY: tableStartY,
+    theme: "grid",
+    styles: {
+      fontSize: 10,
+      cellPadding: 3,
+      halign: "center", 
+      valign: "middle",
+    },
+    headStyles: {
+      fillColor: [21, 153, 155], // Color #15999B
+      textColor: 255, // Texto blanco
+      fontStyle: "bold",
+      halign: "center",
+    },
+    bodyStyles: {
+      textColor: 50,
+      valign: "center",
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245], // Color de fondo alternado
+    },
+  });
 
-      const rows = pageItems.map((item) => ({
-        id: item.id,
-        paciente: item.paciente,
-        servicio: item.servicio,
-        fecha: item.fecha
-          ? new Date(item.fecha).toLocaleDateString("es-ES")
-          : "Fecha no disponible",
-        costo: item.costo.toLocaleString("es-HN", {
-          style: "currency",
-          currency: "HNL",
-        }),
-        cantidad: item.cantidad,
-        total: item.total.toLocaleString("es-HN", {
-          style: "currency",
-          currency: "HNL",
-        }),
-      }));
+  // Guardar el PDF
+  doc.save(`reporte_servicios_${date}.pdf`);
+};
 
-      doc.autoTable({
-        head: [columns.map((col) => col.header)],
-        body: rows.map((row) => columns.map((col) => row[col.dataKey])),
-        startY: tableStartY,
-        theme: "grid",
-        styles: { fontSize: 10, cellPadding: 3 },
-      });
-    }
-
-    doc.save(`reporte_servicios_${date}.pdf`);
-  };
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);

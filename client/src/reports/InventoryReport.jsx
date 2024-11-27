@@ -51,54 +51,69 @@ const InventoryReport = () => {
   }, []);
 
   const handleDownloadPDF = async () => {
-    const container = document.getElementById("inventory-report-container");
+    const pdf = new jsPDF("p", "mm", "a4");
+  
+    pdf.setFontSize(16);
+    pdf.text("Reporte de inventario de insumos", 14, 20);
+    pdf.addImage(logo, "JPEG", 180, 10, 20, 20); 
+    pdf.setFontSize(12);
+    pdf.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
+  
+    const rows = inventoryData.map((item, index) => [
+      index + 1,
+      item.Producto,
+      item.Categoria,
+      item.Descripcion,
+      item.Distribuidor,
+      new Date(item.Caducidad).toLocaleDateString(),
+      item.Cantidad,
+    ]);
+  
+    pdf.autoTable({
+      startY: 30, 
+      head: [["ID", "Producto", "Categoría", "Descripción", "Distribuidor", "Caducidad", "Cantidad"]],
+      body: rows,
+      theme: "grid",
+      styles: { fontSize: 10, 
+        cellPadding: 3,
+        halign: "center", 
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [21, 153, 155], 
+        textColor: 255,
+        halign: "center", 
+      },
+      bodyStyles: {
+        textColor: 50,
+        halign: "center",
+      },
 
-    html2canvas(container, { scale: 5 }).then((canvas) => {
-      const pdf = new jsPDF("p", "mm", "a4");
-
-      // Agregar la gráfica en la primera página
-      const imgData = canvas.toDataURL("image/png");
-      pdf.addImage(imgData, "PNG", 10, 10, 180, 250); 
-
-      const rowsPerPage = 5;
-      const totalPages = Math.ceil(inventoryData.length / rowsPerPage);
-
-      const addTableToPDF = (page) => {
-        const startIndex = (page - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
-        const rows = inventoryData.slice(startIndex, endIndex);
-
-        if (rows.length > 0 || page > 1) {
-          pdf.autoTable({
-            startY: page === 1 ? 290 : 20,  
-            head: [["ID", "Producto", "Categoría", "Descripción", "Distribuidor", "Caducidad", "Cantidad"]],
-            body: rows.map((item, index) => [
-              index + 1 + startIndex,
-              item.Producto,
-              item.Categoria,
-              item.Descripcion,
-              item.Distribuidor,
-              new Date(item.Caducidad).toLocaleDateString(),
-              item.Cantidad,
-            ]),
-            margin: { top: 10 },
-            theme: "grid",
-            showHead: "everyPage", 
-          });
-
-          if (page < totalPages) {
-            pdf.addPage(); 
-          }
-        }
-      };
-
-      for (let i = 1; i <= totalPages; i++) {
-        addTableToPDF(i);
-      }
-
-      pdf.save("reporte_inventario.pdf");
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
     });
+  
+    // Agregar la gráfica en la misma página debajo de la tabla
+    const canvas = await html2canvas(document.querySelector(".inventory-report-chart"), {
+      scale: 2,
+    });
+    const imgData = canvas.toDataURL("image/png");
+  
+    const chartStartY = pdf.autoTable.previous.finalY + 10; // Ajustar posición de la gráfica
+    const pageHeight = pdf.internal.pageSize.height;
+  
+    if (chartStartY + 90 > pageHeight) {
+      // Si la gráfica no cabe en la primera página, crear una nueva página
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 15, 20, 180, 90);
+    } else {
+      pdf.addImage(imgData, "PNG", 15, chartStartY, 180, 90);
+    }
+  
+    pdf.save("reporte_inventario.pdf");
   };
+  
 
   const handleBack = () => {
     navigate("/reports");

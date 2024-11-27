@@ -34,59 +34,60 @@ const ReporteQuejas = () => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter"); 
     const tableStartY = 30;
-    const totalPages = Math.ceil(complaintsData.length / itemsPerPage);
   
-
-    for (let page = 0; page < totalPages; page++) {
-      const startIdx = page * itemsPerPage;
-      const endIdx = startIdx + itemsPerPage;
-      const pageItems = complaintsData.slice(startIdx, endIdx);
+    doc.setFontSize(16);
+    doc.text("Reporte de Quejas", 14, 20); 
+    doc.addImage(logo, "JPEG", 180, 10, 20, 20); 
+    doc.setFontSize(12);
+    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
   
-      if (page > 0) {
-        doc.addPage(); 
-      }
+    const columns = [
+      { header: "Queja ID", dataKey: "id" },
+      { header: "Paciente", dataKey: "Paciente" },
+      { header: "Correo", dataKey: "Correo" },
+      { header: "Fecha de la Queja", dataKey: "Fecha" },
+      { header: "Tipo de Queja", dataKey: "Tipo_de_queja" },
+      { header: "Razón", dataKey: "Razon" },
+    ];
   
-      doc.setFontSize(16);
-      doc.text("Reporte de Quejas", 14, 20); 
-      doc.addImage(logo, "JPEG", 180, 10, 20, 20);
-      doc.setFontSize(12);
-      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
-      doc.text(`Página ${page + 1} de ${totalPages}`, 180, 26, null, null, "right");
+    const rows = complaintsData.map((queja, index) => ({
+      id: index + 1,
+      Paciente: queja.Paciente,
+      Correo: queja.Correo,
+      Fecha: new Date(queja.Fecha).toLocaleDateString("es-ES"),
+      Tipo_de_queja: queja.Tipo_de_queja,
+      Razon: queja.Razon,
+    }));
   
-      const columns = [
-        { header: "Queja ID", dataKey: "id" },
-        { header: "Paciente", dataKey: "Paciente" },
-        { header: "Correo", dataKey: "Correo" },
-        { header: "Fecha de la Queja", dataKey: "Fecha" },
-        { header: "Tipo de Queja", dataKey: "Tipo_de_queja" },
-        { header: "Razón", dataKey: "Razon" },
-      ];
+    doc.autoTable({
+      head: [columns.map((col) => col.header)],
+      body: rows.map((row) => columns.map((col) => row[col.dataKey])),
+      startY: tableStartY,
+      theme: "grid",
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        halign: "center", 
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [21, 153, 155], 
+        textColor: 255, 
+        fontStyle: "bold",
+        halign: "center",
+      },
+      bodyStyles: {
+        textColor: 50, 
+        valign: "middle",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245], 
+      },
+    });
   
-      const rows = pageItems.map((queja, index) => ({
-        id: startIdx + index + 1,
-        Paciente: queja.Paciente,
-        Correo: queja.Correo,
-        Fecha: new Date(queja.Fecha).toLocaleDateString("es-ES"),
-        Tipo_de_queja: queja.Tipo_de_queja,
-        Razon: queja.Razon,
-      }));
-  
-      doc.autoTable({
-        head: [columns.map((col) => col.header)],
-        body: rows.map((row) => columns.map((col) => row[col.dataKey])),
-        startY: tableStartY,
-        theme: "grid",
-        styles: {
-          fontSize: 10,
-          cellPadding: 3,
-        },
-        margin: { top: 20 },
-      });
-    }
-  
-    // Guardar el PDF
     doc.save(`reporte_quejas_${date}.pdf`);
   };
+  
 
   const handleGoBack = () => {
     navigate(-1);
