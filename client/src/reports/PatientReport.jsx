@@ -19,7 +19,8 @@ const ReporteCitas = () => {
     const fetchPatientData = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/patients/${id}`);
-        setPatientData(response.data);
+        const orderedDates = response.data.dates.sort((a, b) => new Date(a.Fecha) - new Date(b.Fecha));
+        setPatientData({ ...response.data, dates: orderedDates });
         setLoading(false);
       } catch (err) {
         console.error("Error al cargar los datos del paciente:", err);
@@ -39,8 +40,11 @@ const ReporteCitas = () => {
   const handleSavePDF = () => {
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
+    const totalPagesExp = "{total_pages_count_string}";
     const tableStartY = 55;
-    const columns = ["Cita ID", "Fecha de cita", "Hora", "Razón", "Odontólogo", "Estado", "Total Pagado"];
+  
+    // Columnas de la tabla
+    const columns = ["#", "Fecha de cita", "Hora", "Razón", "Odontólogo", "Estado", "Total Pagado"];
   
     // Mapeamos las citas del paciente
     const rows = patientData.dates.map((cita, index) => [
@@ -50,9 +54,10 @@ const ReporteCitas = () => {
       cita.Tratamiento,
       cita.Odontologo,
       cita.Estado,
-      cita.Total_Pagado || "Pendiente de Pago"
+      cita.Total_Pagado || "Pendiente de Pago",
     ]);
   
+    // Encabezado
     doc.setFontSize(16);
     doc.text("Reporte de Citas por Paciente", 14, 20);
     doc.addImage(logo, "JPEG", 180, 10, 20, 20);
@@ -70,23 +75,46 @@ const ReporteCitas = () => {
     doc.text(`Correo: ${patientData.Correo}`, marginLeft + columnSpacing, marginTop + 10);
   
     doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, marginLeft, marginTop + 20);
-    
-    doc.autoTable(
-      { 
-        startY: tableStartY,
-        head: [columns],
-        body: rows,
-        theme: "grid",
-        styles: { fontSize: 10, cellPadding: 3, halign: "center", valign: "middle" },
-        headStyles: { fillColor: [21, 153, 155], textColor: 255, halign: "center" },
-        bodyStyles: { textColor: 50, halign: "center" },
-        alternateRowStyles: { fillColor: [245, 245, 245] },
-      }
-    );
   
-    const pdfFileName = `reporte_citas_${patientData.Nombre.replace(/\s+/g, '_')}_${new Date().toLocaleDateString()}.pdf`;
+    // Generar tabla con pie de página
+    doc.autoTable({
+      startY: tableStartY,
+      head: [columns],
+      body: rows,
+      theme: "grid",
+      styles: { fontSize: 10, cellPadding: 3, halign: "center", valign: "middle" },
+      headStyles: { fillColor: [21, 153, 155], textColor: 255, halign: "center" },
+      bodyStyles: { textColor: 50, halign: "center" },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      didDrawPage: (data) => {
+        // Pie de página
+        const pageCount = doc.internal.getNumberOfPages();
+        const currentPage = data.pageNumber;
+        const footerText = `Página ${currentPage} de ${totalPagesExp}`;
+        doc.setFontSize(10);
+        doc.text(footerText, data.settings.margin.left, doc.internal.pageSize.height - 10);
+      },
+    });
+  
+    // Agregar pie de página a todas las páginas
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const footerText = `Página ${i} de ${totalPagesExp}`;
+      doc.setFontSize(10);
+      doc.text(footerText, 14, doc.internal.pageSize.height - 10);
+    }
+  
+    // Reemplazar marcador de total de páginas
+    if (typeof doc.putTotalPages === "function") {
+      doc.putTotalPages(totalPagesExp);
+    }
+  
+    // Descargar el archivo PDF
+    const pdfFileName = `reporte_citas_${patientData.Nombre.replace(/\s+/g, "_")}_${new Date().toLocaleDateString()}.pdf`;
     doc.save(pdfFileName);
   };
+  
 
   const handleExit = () => {
     navigate("/reports");

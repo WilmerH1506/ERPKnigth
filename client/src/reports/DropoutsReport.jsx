@@ -18,7 +18,8 @@ const ReporteAbandono = () => {
     const fetchDropouts = async () => {
       try {
         const response = await axios.get("http://localhost:3000/api/dropouts");
-        setDropoutsData(response.data);
+        const orderedDropouts = response.data.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+        setDropoutsData(orderedDropouts);
         setLoading(false);
       } catch (err) {
         console.error("Error al cargar los pacientes desertores:", err);
@@ -33,8 +34,9 @@ const ReporteAbandono = () => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter"); // Formato carta
     const tableStartY = 30;
+    const totalPagesExp = "{total_pages_count_string}";
   
-    // Configuración del título y encabezado
+    // Encabezado del documento
     doc.setFontSize(16);
     doc.text("Reporte de Pacientes Desertores", 14, 20);
     doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
@@ -58,7 +60,7 @@ const ReporteAbandono = () => {
       Fecha: new Date(dropout.Fecha).toLocaleDateString(),
     }));
   
-    // Generar tabla con todos los datos
+    // Generar tabla con pie de página
     doc.autoTable({
       head: [columns.map((col) => col.header)],
       body: rows.map((row) => columns.map((col) => row[col.dataKey])),
@@ -83,11 +85,35 @@ const ReporteAbandono = () => {
       alternateRowStyles: {
         fillColor: [245, 245, 245], // Color de fondo alternado
       },
+      didDrawPage: (data) => {
+        // Pie de página
+        const pageCount = doc.internal.getNumberOfPages();
+        const currentPage = data.pageNumber;
+        const footerText = `Página ${currentPage} de ${totalPagesExp}`;
+        doc.setFontSize(10);
+        doc.text(footerText, data.settings.margin.left, doc.internal.pageSize.height - 10);
+      },
     });
   
-    // Guardar el PDF
-    doc.save("reporte_desertores.pdf");
+    // Agregar pie de página a todas las páginas
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const footerText = `Página ${i} de ${totalPagesExp}`;
+      doc.setFontSize(10);
+      doc.text(footerText, 14, doc.internal.pageSize.height - 10);
+    }
+  
+    // Reemplazar marcador de total de páginas
+    if (typeof doc.putTotalPages === "function") {
+      doc.putTotalPages(totalPagesExp);
+    }
+  
+    // Descargar el archivo PDF
+    const pdfFileName = `reporte_desertores_${new Date().toLocaleDateString()}.pdf`;
+    doc.save(pdfFileName);
   };
+  
   
 
   const handleBack = () => {

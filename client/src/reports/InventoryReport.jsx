@@ -38,7 +38,10 @@ const InventoryReport = () => {
     const fetchInventoryData = async () => {
       try {
         const response = await axios.get("http://localhost:3000/api/inventory");
-        setInventoryData(response.data);
+        const sortedData = response.data.sort((a, b) => 
+          new Date(a.Caducidad) - new Date(b.Caducidad)
+        );
+        setInventoryData(sortedData)
         setLoading(false);
       } catch (err) {
         console.error("Error al cargar los datos de inventario:", err);
@@ -52,13 +55,16 @@ const InventoryReport = () => {
 
   const handleDownloadPDF = async () => {
     const pdf = new jsPDF("p", "mm", "a4");
+    const totalPagesExp = "{total_pages_count_string}";
   
+    // Encabezado del reporte
     pdf.setFontSize(16);
     pdf.text("Reporte de inventario de insumos", 14, 20);
-    pdf.addImage(logo, "JPEG", 180, 10, 20, 20); 
+    pdf.addImage(logo, "JPEG", 180, 10, 20, 20);
     pdf.setFontSize(12);
     pdf.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
   
+    // Datos de la tabla
     const rows = inventoryData.map((item, index) => [
       index + 1,
       item.Producto,
@@ -69,46 +75,66 @@ const InventoryReport = () => {
       item.Cantidad,
     ]);
   
+    // Generar tabla
     pdf.autoTable({
-      startY: 30, 
+      startY: 30,
       head: [["ID", "Producto", "Categoría", "Descripción", "Distribuidor", "Caducidad", "Cantidad"]],
       body: rows,
       theme: "grid",
-      styles: { fontSize: 10, 
+      styles: {
+        fontSize: 10,
         cellPadding: 3,
-        halign: "center", 
+        halign: "center",
         valign: "middle",
       },
       headStyles: {
-        fillColor: [21, 153, 155], 
+        fillColor: [21, 153, 155],
         textColor: 255,
-        halign: "center", 
+        halign: "center",
       },
       bodyStyles: {
         textColor: 50,
         halign: "center",
       },
-
       alternateRowStyles: {
         fillColor: [245, 245, 245],
       },
+      didDrawPage: (data) => {
+        // Agregar pie de página en cada página
+        const pageCount = pdf.internal.getNumberOfPages();
+        const currentPage = data.pageNumber;
+        const footerText = `Página ${currentPage} de ${totalPagesExp}`;
+        pdf.setFontSize(10);
+        pdf.text(footerText, data.settings.margin.left, pdf.internal.pageSize.height - 10);
+      },
     });
   
-    // Agregar la gráfica en la misma página debajo de la tabla
+    // Agregar gráfica al PDF
     const canvas = await html2canvas(document.querySelector(".inventory-report-chart"), {
       scale: 2,
     });
     const imgData = canvas.toDataURL("image/png");
   
-    const chartStartY = pdf.autoTable.previous.finalY + 10; // Ajustar posición de la gráfica
+    const chartStartY = pdf.autoTable.previous.finalY + 10;
     const pageHeight = pdf.internal.pageSize.height;
   
     if (chartStartY + 90 > pageHeight) {
-      // Si la gráfica no cabe en la primera página, crear una nueva página
       pdf.addPage();
       pdf.addImage(imgData, "PNG", 15, 20, 180, 90);
     } else {
       pdf.addImage(imgData, "PNG", 15, chartStartY, 180, 90);
+    }
+  
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      const footerText = `Página ${i} de ${totalPagesExp}`;
+      pdf.setFontSize(10);
+      pdf.text(footerText, 14, pdf.internal.pageSize.height - 10);
+    }
+
+    if (typeof pdf.putTotalPages === "function") {
+      pdf.putTotalPages(totalPagesExp);
     }
   
     pdf.save("reporte_inventario.pdf");

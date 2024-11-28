@@ -18,7 +18,8 @@ const DateCanceledReport = () => {
     const fetchCanceledDates = async () => {
       try {
         const response = await axios.get("http://localhost:3000/api/dates/canceled");
-        setDatesData(response.data);
+        const orderedDates = response.data.sort((a, b) => new Date(a.Fecha) - new Date(b.Fecha));
+        setDatesData(orderedDates);
         setLoading(false);
       } catch (err) {
         console.error("Error al cargar las fechas canceladas:", err);
@@ -33,8 +34,9 @@ const DateCanceledReport = () => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter"); // Formato carta
     const tableStartY = 30;
+    const totalPagesExp = "{total_pages_count_string}";
   
-    // Configuración del título y encabezado
+    // Encabezado del documento
     doc.setFontSize(16);
     doc.text("Reporte de cancelación de citas", 14, 20);
     doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
@@ -58,7 +60,7 @@ const DateCanceledReport = () => {
       Descripcion: date.Descripcion,
     }));
   
-    // Generar tabla con todos los datos
+    // Generar tabla con pie de página
     doc.autoTable({
       head: [columns.map((col) => col.header)],
       body: rows.map((row) => columns.map((col) => row[col.dataKey])),
@@ -67,27 +69,50 @@ const DateCanceledReport = () => {
       styles: {
         fontSize: 10,
         cellPadding: 3,
-        halign: "center", 
+        halign: "center",
         valign: "middle",
       },
       headStyles: {
-        fillColor: [21, 153, 155], 
-        textColor: 255, 
+        fillColor: [21, 153, 155], // Color del encabezado
+        textColor: 255, // Texto blanco
         fontStyle: "bold",
         halign: "center",
       },
       bodyStyles: {
-        textColor: 50, 
+        textColor: 50, // Texto negro
         valign: "middle",
       },
       alternateRowStyles: {
-        fillColor: [245, 245, 245], // Color de fondo alternado
+        fillColor: [245, 245, 245], // Color alternado
+      },
+      didDrawPage: (data) => {
+        const pageCount = doc.internal.getNumberOfPages();
+        const currentPage = data.pageNumber;
+        const footerText = `Página ${currentPage} de ${totalPagesExp}`;
+        doc.setFontSize(10);
+        doc.text(footerText, data.settings.margin.left, doc.internal.pageSize.height - 10);
       },
     });
   
-    // Guardar el PDF
-    doc.save("reporte_cancelaciones.pdf");
+    // Agregar pie de página a todas las páginas
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const footerText = `Página ${i} de ${totalPagesExp}`;
+      doc.setFontSize(10);
+      doc.text(footerText, 14, doc.internal.pageSize.height - 10);
+    }
+  
+    // Reemplazar marcador de total de páginas
+    if (typeof doc.putTotalPages === "function") {
+      doc.putTotalPages(totalPagesExp);
+    }
+  
+    // Descargar el PDF
+    const pdfFileName = `reporte_cancelaciones_${new Date().toLocaleDateString("es-ES")}.pdf`;
+    doc.save(pdfFileName);
   };
+  
 
   const handleBack = () => {
     navigate("/reports");

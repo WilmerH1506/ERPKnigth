@@ -57,14 +57,16 @@ const ReporteCrecimiento = () => {
 
   const handleDownloadPDF = async () => {
     const pdf = new jsPDF("p", "mm", "a4");
+    const totalPagesExp = "{total_pages_count_string}";
   
+    // Encabezado
     pdf.setFontSize(16);
     pdf.text("Reporte Estadístico de Nuevos Pacientes", 14, 20);
-    pdf.addImage(logo, "JPEG", 180, 10, 20, 20); 
+    pdf.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
     pdf.setFontSize(12);
     pdf.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
     pdf.text(
-      `Estadistica del mes: ${new Date(year, month - 1).toLocaleString("es-ES", {
+      `Estadística del mes: ${new Date(year, month - 1).toLocaleString("es-ES", {
         month: "long",
         year: "numeric",
       })}`,
@@ -72,6 +74,7 @@ const ReporteCrecimiento = () => {
       32
     );
   
+    // Preparar datos de la tabla
     const rows = weeklyData.map((item) => [
       item.Semana,
       new Date(item.FechaInicio).toLocaleDateString(),
@@ -79,8 +82,9 @@ const ReporteCrecimiento = () => {
       item.CantidadPacientesNuevos,
     ]);
   
+    // Generar tabla con pie de página
     pdf.autoTable({
-      startY: 40, 
+      startY: 40,
       head: [["Semana", "Fecha Inicio", "Fecha Fin", "Nuevos Pacientes"]],
       body: rows,
       foot: [
@@ -90,10 +94,10 @@ const ReporteCrecimiento = () => {
         ],
       ],
       theme: "grid",
-      styles: { 
-        fontSize: 10, 
+      styles: {
+        fontSize: 10,
         cellPadding: 3,
-        halign: "center", 
+        halign: "center",
         valign: "middle",
       },
       headStyles: {
@@ -109,18 +113,25 @@ const ReporteCrecimiento = () => {
         fillColor: [245, 245, 245],
       },
       footStyles: {
-        fillColor: [160, 199, 200], 
-        textColor: 255, 
-        fontStyle: "bold", 
+        fillColor: [160, 199, 200],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      didDrawPage: (data) => {
+        const pageCount = pdf.internal.getNumberOfPages();
+        const currentPage = data.pageNumber;
+        const footerText = `Página ${currentPage} de ${totalPagesExp}`;
+        pdf.setFontSize(10);
+        pdf.text(footerText, data.settings.margin.left, pdf.internal.pageSize.height - 10);
       },
     });
   
+    // Agregar gráfico
     const canvas = await html2canvas(document.querySelector(".reporte-crecimiento-grafico"), {
       scale: 2,
     });
     const imgData = canvas.toDataURL("image/png");
-  
-    const chartStartY = pdf.autoTable.previous.finalY + 10; // Ajustar posición de la gráfica
+    const chartStartY = pdf.autoTable.previous.finalY + 10;
     const pageHeight = pdf.internal.pageSize.height;
   
     if (chartStartY + 90 > pageHeight) {
@@ -130,8 +141,25 @@ const ReporteCrecimiento = () => {
       pdf.addImage(imgData, "PNG", 15, chartStartY, 180, 90);
     }
   
-    pdf.save(`reporte_estadistico_pacientesNuevos_${month}-${year}.pdf`);
+    // Agregar pie de página a todas las páginas
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      const footerText = `Página ${i} de ${totalPagesExp}`;
+      pdf.setFontSize(10);
+      pdf.text(footerText, 14, pdf.internal.pageSize.height - 10);
+    }
+  
+    // Reemplazar marcador de total de páginas
+    if (typeof pdf.putTotalPages === "function") {
+      pdf.putTotalPages(totalPagesExp);
+    }
+  
+    // Descargar el PDF
+    const pdfFileName = `reporte_estadistico_pacientesNuevos_${month}-${year}.pdf`;
+    pdf.save(pdfFileName);
   };
+  
 
   const chartData = {
     labels: monthlyData.map((item) => item.Mes),

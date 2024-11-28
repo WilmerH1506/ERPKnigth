@@ -14,125 +14,152 @@ const ReportesServicios = () => {
   const navigate = useNavigate();
   const [totalRevenue, setTotalRevenue] = useState(0);
 
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/services/${date}`);
-      const data = await response.json();
-
-      if (data.revenue) {
-        let idCounter = 1;
-        let revenueSum = 0; 
-        const formattedData = Object.entries(data.revenue)
-          .map(([servicio, details]) =>
-            details.pacientes.map((paciente, i) => {
-              const costo = details.total / details.pacientes.length;
-              revenueSum += costo;
-              return {
-                id: idCounter++,
-                servicio,
-                paciente,
-                costo,
-                fecha: details.fechas[i],
-                cantidad: 1,
-                total: costo,
-              };
-            })
-          )
-          .flat();
-
-        setReportData(formattedData);
-        setTotalRevenue(revenueSum); 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/services/${date}`);
+        const data = await response.json();
+  
+        if (data.revenue) {
+          let revenueSum = 0; 
+          const formattedData = Object.entries(data.revenue)
+            .flatMap(([servicio, details]) =>
+              details.pacientes.map((paciente, i) => {
+                const costo = details.total / details.pacientes.length;
+                revenueSum += costo;
+                return {
+                  servicio,
+                  paciente,
+                  costo,
+                  fecha: details.fechas[i],
+                  cantidad: 1,
+                  total: costo,
+                };
+              })
+            );
+  
+          const orderPerPrice = formattedData.sort((a, b) => b.total - a.total);
+  
+          const orderedDataWithIds = orderPerPrice.map((item, index) => ({
+            ...item,
+            id: index + 1,
+          }));
+  
+          setReportData(orderedDataWithIds);
+          setTotalRevenue(revenueSum);
+        }
+  
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
       }
-
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setLoading(false);
+    };
+  
+    fetchData();
+  }, [date]);
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF("p", "mm", "letter"); // Formato carta
+    const tableStartY = 35;
+    const totalPagesExp = "{total_pages_count_string}";
+  
+    // Configuración del título y encabezado
+    doc.setFontSize(16);
+    doc.text("Reporte de Servicios", 14, 20);
+    doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
+    doc.setFontSize(12);
+    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
+    doc.text(
+      `Total generado: ${totalRevenue.toLocaleString("es-HN", {
+        style: "currency",
+        currency: "HNL",
+      })}`,
+      14,
+      32
+    );
+  
+    // Configuración de columnas y filas
+    const columns = [
+      { header: "Servicio ID", dataKey: "id" },
+      { header: "Nombre Paciente", dataKey: "paciente" },
+      { header: "Servicio", dataKey: "servicio" },
+      { header: "Fecha", dataKey: "fecha" },
+      { header: "Costo", dataKey: "costo" },
+      { header: "Cantidad", dataKey: "cantidad" },
+      { header: "Total", dataKey: "total" },
+    ];
+  
+    const rows = reportData.map((item) => ({
+      id: item.id,
+      paciente: item.paciente,
+      servicio: item.servicio,
+      fecha: item.fecha
+        ? new Date(item.fecha).toLocaleDateString("es-ES")
+        : "Fecha no disponible",
+      costo: item.costo.toLocaleString("es-HN", {
+        style: "currency",
+        currency: "HNL",
+      }),
+      cantidad: item.cantidad,
+      total: item.total.toLocaleString("es-HN", {
+        style: "currency",
+        currency: "HNL",
+      }),
+    }));
+  
+    // Generar tabla con pie de página
+    doc.autoTable({
+      head: [columns.map((col) => col.header)],
+      body: rows.map((row) => columns.map((col) => row[col.dataKey])),
+      startY: tableStartY,
+      theme: "grid",
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        halign: "center", // Centrar contenido
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [21, 153, 155], // Color #15999B
+        textColor: 255, // Texto blanco
+        fontStyle: "bold",
+        halign: "center",
+      },
+      bodyStyles: {
+        textColor: 50,
+        valign: "center",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245], // Color de fondo alternado
+      },
+      didDrawPage: (data) => {
+        // Pie de página
+        const pageCount = doc.internal.getNumberOfPages();
+        const footerText = `Página ${data.pageNumber} de ${totalPagesExp}`;
+        doc.setFontSize(10);
+        doc.text(footerText, data.settings.margin.left, doc.internal.pageSize.height - 10);
+      },
+    });
+  
+    // Agregar pie de página a todas las páginas
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const footerText = `Página ${i} de ${totalPagesExp}`;
+      doc.setFontSize(10);
+      doc.text(footerText, 14, doc.internal.pageSize.height - 10);
     }
+  
+    // Reemplazar marcador de total de páginas
+    if (typeof doc.putTotalPages === "function") {
+      doc.putTotalPages(totalPagesExp);
+    }
+  
+    // Guardar el PDF
+    const pdfFileName = `reporte_servicios_${new Date().toLocaleDateString("es-ES")}.pdf`;
+    doc.save(pdfFileName);
   };
-
-  fetchData();
-}, [date]);
-
-const handleDownloadPDF = () => {
-  const doc = new jsPDF("p", "mm", "letter"); // Formato carta
-  const tableStartY = 35;
-
-  // Configuración del título y encabezado
-  doc.setFontSize(16);
-  doc.text("Reporte de Servicios", 14, 20);
-  doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
-  doc.setFontSize(12);
-  doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
-  doc.text(
-    `Total generado: ${totalRevenue.toLocaleString("es-HN", {
-      style: "currency",
-      currency: "HNL",
-    })}`,
-    14,
-    32
-  );
-
-  // Configuración de columnas y filas
-  const columns = [
-    { header: "Servicio ID", dataKey: "id" },
-    { header: "Nombre Paciente", dataKey: "paciente" },
-    { header: "Servicio", dataKey: "servicio" },
-    { header: "Fecha", dataKey: "fecha" },
-    { header: "Costo", dataKey: "costo" },
-    { header: "Cantidad", dataKey: "cantidad" },
-    { header: "Total", dataKey: "total" },
-  ];
-
-  const rows = reportData.map((item) => ({
-    id: item.id,
-    paciente: item.paciente,
-    servicio: item.servicio,
-    fecha: item.fecha
-      ? new Date(item.fecha).toLocaleDateString("es-ES")
-      : "Fecha no disponible",
-    costo: item.costo.toLocaleString("es-HN", {
-      style: "currency",
-      currency: "HNL",
-    }),
-    cantidad: item.cantidad,
-    total: item.total.toLocaleString("es-HN", {
-      style: "currency",
-      currency: "HNL",
-    }),
-  }));
-
-  // Generar tabla
-  doc.autoTable({
-    head: [columns.map((col) => col.header)],
-    body: rows.map((row) => columns.map((col) => row[col.dataKey])),
-    startY: tableStartY,
-    theme: "grid",
-    styles: {
-      fontSize: 10,
-      cellPadding: 3,
-      halign: "center", 
-      valign: "middle",
-    },
-    headStyles: {
-      fillColor: [21, 153, 155], // Color #15999B
-      textColor: 255, // Texto blanco
-      fontStyle: "bold",
-      halign: "center",
-    },
-    bodyStyles: {
-      textColor: 50,
-      valign: "center",
-    },
-    alternateRowStyles: {
-      fillColor: [245, 245, 245], // Color de fondo alternado
-    },
-  });
-
-  // Guardar el PDF
-  doc.save(`reporte_servicios_${date}.pdf`);
-};
+  
 
 
   const handlePageChange = (pageNumber) => {

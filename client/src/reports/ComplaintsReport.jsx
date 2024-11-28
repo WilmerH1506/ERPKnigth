@@ -19,7 +19,8 @@ const ReporteQuejas = () => {
       try {
         const response = await fetch(`http://localhost:3000/api/complaints/${date}`);
         const data = await response.json();
-        setComplaintsData(data);
+        const orderedDates = data.sort((a, b) => new Date(a.Fecha) - new Date(b.Fecha));        
+        setComplaintsData(orderedDates);
         setLoading(false);
       } catch (err) {
         console.error("Error al cargar las quejas:", err);
@@ -32,15 +33,18 @@ const ReporteQuejas = () => {
   }, [date]);
 
   const handleDownloadPDF = () => {
-    const doc = new jsPDF("p", "mm", "letter"); 
+    const doc = new jsPDF("p", "mm", "letter"); // Formato carta
     const tableStartY = 30;
+    const totalPagesExp = "{total_pages_count_string}";
   
+    // Encabezado del documento
     doc.setFontSize(16);
-    doc.text("Reporte de Quejas", 14, 20); 
-    doc.addImage(logo, "JPEG", 180, 10, 20, 20); 
+    doc.text("Reporte de Quejas", 14, 20);
+    doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
     doc.setFontSize(12);
     doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
   
+    // Configuración de columnas y datos
     const columns = [
       { header: "Queja ID", dataKey: "id" },
       { header: "Paciente", dataKey: "Paciente" },
@@ -59,6 +63,7 @@ const ReporteQuejas = () => {
       Razon: queja.Razon,
     }));
   
+    // Generar tabla con pie de página
     doc.autoTable({
       head: [columns.map((col) => col.header)],
       body: rows.map((row) => columns.map((col) => row[col.dataKey])),
@@ -67,26 +72,50 @@ const ReporteQuejas = () => {
       styles: {
         fontSize: 10,
         cellPadding: 3,
-        halign: "center", 
+        halign: "center",
         valign: "middle",
       },
       headStyles: {
-        fillColor: [21, 153, 155], 
-        textColor: 255, 
+        fillColor: [21, 153, 155], // Color del encabezado
+        textColor: 255, // Texto blanco
         fontStyle: "bold",
         halign: "center",
       },
       bodyStyles: {
-        textColor: 50, 
+        textColor: 50, // Texto negro
         valign: "middle",
       },
       alternateRowStyles: {
-        fillColor: [245, 245, 245], 
+        fillColor: [245, 245, 245], // Color alternado
+      },
+      didDrawPage: (data) => {
+        const pageCount = doc.internal.getNumberOfPages();
+        const currentPage = data.pageNumber;
+        const footerText = `Página ${currentPage} de ${totalPagesExp}`;
+        doc.setFontSize(10);
+        doc.text(footerText, data.settings.margin.left, doc.internal.pageSize.height - 10);
       },
     });
   
-    doc.save(`reporte_quejas_${date}.pdf`);
+    // Agregar pie de página a todas las páginas
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const footerText = `Página ${i} de ${totalPagesExp}`;
+      doc.setFontSize(10);
+      doc.text(footerText, 14, doc.internal.pageSize.height - 10);
+    }
+  
+    // Reemplazar marcador de total de páginas
+    if (typeof doc.putTotalPages === "function") {
+      doc.putTotalPages(totalPagesExp);
+    }
+  
+    // Descargar el PDF
+    const pdfFileName = `reporte_quejas_${new Date().toLocaleDateString("es-ES")}.pdf`;
+    doc.save(pdfFileName);
   };
+  
   
 
   const handleGoBack = () => {
