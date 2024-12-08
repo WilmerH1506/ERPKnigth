@@ -1,10 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';  
-import { FaHome, FaUserFriends, FaCalendarAlt, FaBox, FaBook, FaChartLine } from 'react-icons/fa';
+import { FaHome, FaUserFriends, FaCalendarAlt, FaBox, FaBook, FaChartLine, FaSignOutAlt } from 'react-icons/fa';
 import logo from '../assets/Logo.jpg';
 import './NavBar.css';
 
-const NavBar = () => {
+const NavBar = ({ onLogout }) => {  
   return (
     <nav className="navbar">
       <div className="title">
@@ -34,6 +34,12 @@ const NavBar = () => {
           <NavLink to="/reports" className="nav-button" activeClassName="active">
             <FaChartLine className="nav-icon" />
             Reportes
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/login" className="nav-button" onClick={onLogout}>
+            <FaSignOutAlt className="nav-icon" />
+            Cerrar Sesión
           </NavLink>
         </li>
       </ul>

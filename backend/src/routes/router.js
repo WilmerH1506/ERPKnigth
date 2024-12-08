@@ -1,7 +1,8 @@
 import {Router} from 'express';
+import {getUsers,registerUser } from '../controllers/controllerUser.js'; 
 import {patients,registerpatients,deletePatient,editPatient} from '../controllers/controllerpatients.js';
 import {inventory,registerProduct,deleteProduct,editProduct} from '../controllers/controllerInventory.js';
-import {dates,RegisterDates,DeleteDate,EditDate} from '../controllers/controllerDates.js'
+import {dates,RegisterDates,DeleteDate,EditDate,getDate} from '../controllers/controllerDates.js'
 import {treatments,registerTreatments} from '../controllers/controllertreatments.js';
 import {DatesperPatient,DatesCanceled,serviceRevenue,getComplaints,
     registerComplaint,getComplaintsPerMonth,PatientsDropouts,
@@ -9,6 +10,10 @@ import {DatesperPatient,DatesCanceled,serviceRevenue,getComplaints,
 
 
 const router = Router();
+
+router.post('/users',getUsers);
+
+router.post('/registeruser',registerUser);
 
 router.get('/patients',patients);
 
@@ -35,6 +40,8 @@ router.put('/editproduct',editProduct);
 router.get('/dates',dates)
 
 router.get('/dates/canceled',DatesCanceled)
+
+router.post('/dates/especificDate', getDate )
 
 router.get('/freeHours/:date', FreeHoursPerDoctor)
 

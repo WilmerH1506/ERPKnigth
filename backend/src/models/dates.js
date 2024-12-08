@@ -25,6 +25,11 @@ const datesSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    Cantidad:
+    {
+        type: Number,
+        required: true
+    },
     Descripcion:
     {
         type: String,

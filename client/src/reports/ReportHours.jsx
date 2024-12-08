@@ -15,8 +15,17 @@ const FreeHoursReport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const month = date.split("-")[0];
+  const year = date.split("-")[1];
 
-  const itemsPerPage = 7; 
+  const itemsPerPage = 7;
+
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  const monthName = months[parseInt(month) - 1];
 
   useEffect(() => {
     const fetchFreeHours = async () => {
@@ -25,13 +34,11 @@ const FreeHoursReport = () => {
         const fetchedData = response.data;
 
         if (Array.isArray(fetchedData)) {
-          const [month, year] = date.split("-").map(Number);
-
           const filteredData = fetchedData.map((doctorData) => ({
             ...doctorData,
             dates: doctorData.dates.filter((day) => {
               const [dayYear, dayMonth] = day.date.split("-").map(Number);
-              return dayYear === year && dayMonth === month;
+              return dayYear === parseInt(year) && dayMonth === parseInt(month);
             }),
           }));
 
@@ -69,11 +76,6 @@ const FreeHoursReport = () => {
     ),
   }));
 
-  const currentDates = itemsToShow[0]?.dates || [];
-  const startDate = currentDates[0]?.date.split("-")[2];
-  const endDate = currentDates[currentDates.length - 1]?.date.split("-")[2];
-  const dateRange = startDate && endDate ? `${startDate}-${endDate}` : "";
-
   const handleDownloadPDF = async () => {
     const container = document.getElementById("inventory-report-container");
 
@@ -88,6 +90,12 @@ const FreeHoursReport = () => {
   if (loading) return <p>Cargando datos...</p>;
   if (error) return <p>{error}</p>;
 
+  // Función para formatear las fechas al formato dd/mm/yyyy
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div id="inventory-report-container" className="inventory-report-container">
       {/* Botones */}
@@ -98,7 +106,6 @@ const FreeHoursReport = () => {
         >
          ← Salir
         </button>
-        
       </div>
 
       <h1 className="free-report-header">
@@ -108,13 +115,16 @@ const FreeHoursReport = () => {
       <p className="inventory-report-info">
         <strong>Fecha de reporte:</strong> {new Date().toLocaleDateString()}
       </p>
+      <p className="inventory-report-info">
+        <strong>Mes generado:</strong> {monthName}
+      </p>
 
       {/* Tabla */}
       <table className="inventory-report-table">
         <thead>
           <tr>
-            <th>Fecha (Intervalo: {dateRange})</th>
             <th>Doctora</th>
+            <th>Fecha</th>
             <th>Horas Libres</th>
             <th>Horas Ocupadas</th>
             <th>Horarios Disponibles</th> {/* Nueva columna */}
@@ -124,8 +134,8 @@ const FreeHoursReport = () => {
           {itemsToShow.map((doctorData, doctorIndex) =>
             doctorData.dates.map((day, dayIndex) => (
               <tr key={`${doctorIndex}-${dayIndex}`}>
-                <td>{dayIndex === 0 ? dateRange : ""}</td>
                 <td>{dayIndex === 0 ? doctorData.doctor : ""}</td>
+                <td>{formatDate(day.date)}</td> {/* Formateamos la fecha */}
                 <td>{day.freeHours.length}</td>
                 <td>{10 - day.freeHours.length}</td>
                 <td>{day.freeHours.join(", ")}</td> {/* Nueva celda */}

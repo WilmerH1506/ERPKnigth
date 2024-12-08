@@ -9,12 +9,15 @@ import './Inventory.css';
 
 const Inventory = () => {
   const [inventory, setInventory] = useState([]);
+  const [filteredProduct, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentProduct, setCurrentProduct] = useState({
     Producto: '',
+    Categoria: '',
     Descripcion: '',
     Distribuidor: '',
     Caducidad: '',
@@ -22,8 +25,6 @@ const Inventory = () => {
     Precio: '',
   });
   const [productToDelete, setProductToDelete] = useState(null);
-
-  // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -32,6 +33,7 @@ const Inventory = () => {
       try {
         const data = await getInventory(); 
         setInventory(data);
+        setFilteredProducts(data);
       } catch (error) {
         console.error('Error al obtener los productos:', error);
       } finally {
@@ -40,6 +42,18 @@ const Inventory = () => {
     };
     fetchInventory();
   }, []);
+
+
+  const handleSearch = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    const filtered = inventory.filter(product => 
+      product.Categoria.toLowerCase().includes(term.toLowerCase()) || 
+      product.Distribuidor.toLowerCase().includes(term.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+    setCurrentPage(1);    
+  };
 
   const openModal = (product = null) => {
     if (product) {
@@ -82,6 +96,7 @@ const Inventory = () => {
 
       await deleteProduct(productToDelete);
       setInventory(inventory.filter(p => p._id !== productToDelete));
+      setFilteredProducts(filteredProduct.filter(p => p._id !== productToDelete));
       toast.success('Producto eliminado con éxito!');
       closeConfirmation();
     }
@@ -105,10 +120,14 @@ const Inventory = () => {
         setInventory(
           inventory.map((product) => (product._id === updatedProduct._id ? updatedProduct : product))
         );
+        setFilteredProducts( 
+          filteredProduct.map((product) => (product._id === updatedProduct._id ? updatedProduct : product))
+        );
         toast.success('Producto editado con éxito!');
       } else {
         const newProduct = await registerProduct(data);
         setInventory([...inventory, newProduct]);
+        setFilteredProducts([...filteredProduct, newProduct]);
         toast.success('Producto agregado con éxito!');
       }
       closeModal();
@@ -131,17 +150,21 @@ const Inventory = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Cálculo de la paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = inventory.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(inventory.length / itemsPerPage);
+  const currentItems = filteredProduct.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredProduct.length / itemsPerPage);
 
   const inputs = [
     {
       label: 'Producto',
       name: 'Producto',
       placeholder: 'Ingrese el nombre del producto',
+      validation: {
+        required: 'Este campo es requerido',
+        minLength: { value: 3, message: 'El nombre del producto debe tener al menos 3 caracteres' },
+        maxLength: { value: 50, message: 'El nombre del producto debe tener menos de 50 caracteres' },
+      },
     },
     {
       label: 'Categoria',
@@ -149,33 +172,62 @@ const Inventory = () => {
       placeholder: 'Ingrese la categoria del producto',
       type: 'select',
       options: ['Protección Personal', 'Material de Curación', 'Equipo y instrumentos', 'Medicamentos','Otros'],
+      validation: {
+        required: 'Este campo es requerido',
+      },
     },
     {
       label: 'Descripción',
       name: 'Descripcion',
       placeholder: 'Ingrese una descripción',
+      validation: {
+        required: 'Este campo es requerido',
+        minLength: { value: 3, message: 'La descripción debe tener al menos 3 caracteres' },
+        maxLength: { value: 100, message: 'La descripción debe tener menos de 100 caracteres' },
+      },
     },
     {
       label: 'Distribuidor',
       name: 'Distribuidor',
       placeholder: 'Ingrese el nombre del distribuidor',
+      validation: {
+        required: 'Este campo es requerido',
+        minLength: { value: 5, message: 'El nombre del distribuidor debe tener al menos 5 caracteres' },
+        maxLength: { value: 50, message: 'El nombre del distribuidor debe tener menos de 50 caracteres' },
+      },
     },
     {
       label: 'Caducidad',
       name: 'Caducidad',
       type: 'date',  
       placeholder: 'Ingrese la fecha de caducidad',
+      validation: {
+        required: 'Este campo es requerido',
+        min: { value: new Date().toISOString().split('T')[0], message: 'La fecha de caducidad no puede ser anterior a la fecha actual' },
+        
+    }
     },
     {
       label: 'Cantidad',
       name: 'Cantidad',
       placeholder: 'Ingrese la cantidad',
+      type: 'number',
+      validation: {
+        required: 'Este campo es requerido',
+        min: { value: 1, message: 'La cantidad debe ser mayor a 0' },
+      },
     },
     {
       label: 'Precio',
       name: 'Precio',
       placeholder: 'Ingrese el precio',
+      type: 'number',
+      validation: {
+        required: 'Este campo es requerido',
+        min: { value: 1, message: 'El precio debe ser mayor a 0' },
+        max : { value: 100000, message: 'El precio no puede ser mayor a 100,000'},
     },
+    }
   ];
 
   return (
@@ -195,6 +247,14 @@ const Inventory = () => {
             </button>
           </div>
 
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Buscar por categoria o distribuidor"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+          </div>
           <div className="inventory-table">
             <table>
               <thead>
@@ -242,17 +302,17 @@ const Inventory = () => {
               disabled={currentPage === 1}
               className="pagination-btn inventory-pagination-button"
             >
-              Anterior
+              &laquo; Anterior
             </button>
             <span className="pagination-info">
               Página {currentPage} de {totalPages}
             </span>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || totalPages === 0}
               className="pagination-btn inventory-pagination-button"
             >
-              Siguiente
+              Siguiente &raquo;
             </button>
           </div>
         </div>
@@ -264,13 +324,14 @@ const Inventory = () => {
         inputs={inputs}
         title={modalTitle}
         onSubmit={handleSubmit} 
-        currentPatient={currentProduct}
+        currentData={currentProduct}
       />
 
       <ConfirmationModal 
         isOpen={isConfirmationOpen} 
         onClose={closeConfirmation} 
         onConfirm={handleDelete} 
+        message="¿Estás seguro de que deseas eliminar este producto?, esta acción no se puede deshacer."
       />
     </div>
   );

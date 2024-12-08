@@ -3,6 +3,8 @@ import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa';
 import Modal from './ModalInput';
 import ConfirmationModal from './confirmModal'; 
 import { getPatients, registerPatients, deletePatient, editPatient } from "../api/api.js"; 
+import {registerDate} from '../api/api.js';
+import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 import './Patients.css';
@@ -20,6 +22,19 @@ const Patients = () => {
   const [currentPage, setCurrentPage] = useState(1); 
   const [patientsPerPage] = useState(5); 
   const [totalpages, setTotalPages] = useState(0); 
+
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState({
+    Fecha: '',
+    Hora_Ingreso: '',
+    Hora_Salida: '',
+    Paciente: '',
+    Tratamiento: '',
+    Cantidad: '',
+    Descripcion: '',
+    Odontologo: '',
+    Estado: '',
+  });
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -60,8 +75,17 @@ const Patients = () => {
     setIsModalOpen(true);
   };
 
+  const openAppointmentModal = (Patient) => {
+    setCurrentDate({ ...currentDate, Paciente: Patient.Nombre });
+    setIsAppointmentModalOpen(true);
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const closeAppointmentModal = () => {
+    setIsAppointmentModalOpen(false);
   };
 
   const openConfirmation = (id) => {
@@ -111,6 +135,28 @@ const Patients = () => {
     }
   };
 
+  const handleSubmitDate = async (data) => {
+    try {
+      data.Paciente = currentDate.Paciente; 
+
+      if (validateAppointmentTimes(data) !== true) {
+        return toast.error(validateAppointmentTimes(data));
+      }
+
+      const isAvailable = await validateDateDisponibility(data);
+      if (!isAvailable) {
+      return toast.error('La fecha y hora seleccionadas no están disponibles');
+      }
+
+      await registerDate(data);
+      toast.success('Cita agregada con éxito!');
+      closeAppointmentModal();
+    } catch (error) {
+      console.error('Error al agregar la cita:', error);
+      toast.error('Error al guardar la cita.');
+    }
+  };
+
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -135,29 +181,217 @@ const Patients = () => {
       label: 'Nombre',
       name: 'Nombre',
       placeholder: 'Ingrese el nombre',
+      validation: 
+      { required: 'Campo requerido',
+        length: { value: 3, message: 'El nombre debe tener al menos 3 caracteres' },
+        pattern: { value: /^[a-zA-Z\s]*$/, message: 'El nombre no puede contener números' },
+      },
     },
     {
+  
       label: 'Sexo',
       name: 'Sexo',
       placeholder: 'Seleccione sexo',
       type: 'select', 
-      options: ['Masculino', 'Femenino', 'Otro'], 
+      options: ['Masculino', 'Femenino'],
+      validation:
+      { required: 'Campo requerido',},
     },
     {
       label: 'DNI',
       name: 'DNI',
       placeholder: 'Ingrese el DNI',
+      validation: 
+      { required: 'Campo requerido',
+        minLength: {
+          value: 13,
+          message: 'El DNI debe tener al menos 13 caracteres',
+        },
+        maxLength: {
+          value: 15,
+          message: 'El DNI debe tener como máximo 15 caracteres',
+        },
+        pattern: { value: /^[0-9-]*$/, message: 'El DNI solo puede contener números y guiones' },
+      },
     },
     {
       label: 'Teléfono',
       name: 'Telefono',
       placeholder: 'Ingrese el teléfono',
+      validation: 
+      { required: 'Campo requerido',
+        minLength: {
+          value: 8,
+          message: 'El telefono debe tener al menos 8 caracteres',
+        },
+        maxLength: {
+          value: 14,
+          message: 'El telefono debe tener como máximo 14 caracteres',
+        },
+        pattern: { value: /^[0-9+-]*$/, message: 'El teléfono solo puede contener números, + y guiones' },
+      },
     },
     {
       label: 'Correo',
       name: 'Correo',
       type: 'email',
       placeholder: 'Ingrese el correo',
+      validation: 
+      { required: 'Campo requerido',
+        pattern: { value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/, message: 'Correo inválido' },
+      },
+    },
+  ];
+
+  const today = new Date();
+  const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+  .toISOString()
+  .split('T')[0];
+
+  const validateDateDisponibility = async (data) => {
+    const { Fecha, Hora_Ingreso, Odontologo} = data;
+    try {
+      const response = await axios.post('http://localhost:3000/api/dates/especificDate', {
+          Fecha,
+          Hora_Ingreso,
+          Odontologo,
+      }
+      );
+
+      if (!response.data) {
+        throw new Error('Error al consultar la disponibilidad de la fecha');
+      }
+      
+      return response.data.length === 0;
+    } catch (error) {
+      console.error('Error al validar la disponibilidad de la fecha:', error);
+      return false; 
+    }
+  }
+
+  const validateAppointmentTimes = (data) => {
+    const { Hora_Ingreso, Hora_Salida } = data;
+  
+    if (!Hora_Ingreso || !Hora_Salida) {
+      return 'Ambos campos de hora son obligatorios';
+    }
+  
+    const [startHour, startMinute] = Hora_Ingreso.split(':').map(Number);
+    const [endHour, endMinute] = Hora_Salida.split(':').map(Number);
+  
+    if (endHour < 8 || endHour > 17 || startHour < 8 || startHour > 17) {
+      return 'Las horas deben estar entre las 8:00 y las 17:00';
+    }
+  
+    if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
+      return 'La hora de salida debe ser posterior a la hora de ingreso';
+    }
+  
+    return true; 
+  };
+
+  const Dateinputs = [
+    {
+      label: 'Fecha',
+      name: 'Fecha',
+      type: 'date',
+      value: currentDate.Fecha,
+      validation:
+      { required: 'Campo requerido',
+        min: {value : localDate, message: 'La fecha de la cita no puede ser anterior a la fecha actual'},
+      },
+    },
+    {
+      label: 'Hora de Inicio',
+      name: 'Hora_Ingreso',
+      type: 'time',
+      value: currentDate.Hora_Ingreso,
+      validation:
+      { required: 'Campo requerido',
+      },
+    },
+    {
+      label: 'Hora de Salida',
+      name: 'Hora_Salida',
+      type: 'time',
+      value: currentDate.Hora_Salida,
+      validation:
+      { required: 'Campo requerido',
+    },
+    },
+    {
+      label: 'Paciente',
+      name: 'Paciente',
+      type: 'text',
+      value: currentDate.Paciente,
+      placeholder: 'Ingrese el nombre del paciente',
+      validation:
+      { required: 'Campo requerido',
+        disabled: true,
+        pattern: { value: /^[a-zA-Z\s]*$/, message: 'El nombre del paciente no puede contener números' },
+      },
+    },
+    {
+      label: 'Tratamiento',
+      name: 'Tratamiento',
+      type: 'select',
+      placeholder: 'Seleccione el tratamiento',
+      options: ['Examen Clínico','Limpiezas','Blanqueamientos','Tratamientos de las Encías','Extracciones',
+               'Restauraciones Estéticas','Prótesis Fijas (de Porcelana)','Prótesis Removibles','Endodoncias',
+               'Cirugía de Cordales Impactadas','Tratamientos Infantiles','Atención a pacientes Diabéticos',
+               'Ortodoncia','Periodoncia','Endodoncia'],
+      value: currentDate.Tratamiento, 
+      validation:
+      { required: 'Campo requerido',} 
+    },
+    {
+      label: 'Cantidad',
+      name: 'Cantidad',
+      type: 'number',
+      value: currentDate.Cantidad,
+      placeholder: 'Ingrese la cantidad de tratamientos',
+      validation:
+      { required: 'Campo requerido',
+        max: { value: 4, message: 'La cantidad de tratamientos no debe ser mayor a 4' },
+      },
+    },
+    {
+      label: 'Descripción',
+      name: 'Descripcion',
+      type: 'text',
+      value: currentDate.Descripcion,
+      placeholder: 'Ingrese la descripción del tratamiento',
+      validation:
+      { required: 'Campo requerido',
+        minLength: {
+          value: 3,
+          message: 'La descripción debe tener al menos 10 caracteres',
+        },
+        maxLength: {
+          value: 100,
+          message: 'La descripción debe tener como máximo 100 caracteres',
+        },
+      }, 
+    },
+    {
+      label: 'Odontólogo',
+      name: 'Odontologo',
+      type: 'select',
+      placeholder: 'Seleccione el odontólogo',
+      value: currentDate.Odontologo,
+      options: ['Dra. Lesly Sofia Mejia', 'Dra. Gina Esperanza Argueta'],
+      validation:
+      { required: 'Campo requerido',}
+    },
+    {
+      label: 'Estado',
+      name: 'Estado',
+      type: 'select',
+      placeholder: 'Seleccione el estado de la cita',
+      value: currentDate.Estado,
+      options: ['Pendiente', 'Cancelada', 'Realizada'],
+      validation:
+      { required: 'Campo requerido',}
     },
   ];
 
@@ -214,6 +448,9 @@ const Patients = () => {
                   <button className="delete-button" onClick={() => openConfirmation(patient._id)}>
                     <FaTrashAlt /> Eliminar
                   </button>
+                  <button className="edit-button" onClick={() => openAppointmentModal(patient)}>
+                    <FaPlus /> Agregar Cita
+                  </button>
                 </td>
               </tr>
             ))}
@@ -236,13 +473,23 @@ const Patients = () => {
         inputs={inputs}
         title={modalTitle}
         onSubmit={handleSubmit} 
-        currentPatient={currentPatient}
+        currentData={currentPatient}
+      />
+
+      <Modal
+        isOpen={isAppointmentModalOpen}
+        onClose={closeAppointmentModal}
+        inputs={Dateinputs}
+        title="Nueva Cita"
+        onSubmit={handleSubmitDate}
+        currentData={currentDate}
       />
 
       <ConfirmationModal 
         isOpen={isConfirmationOpen} 
         onClose={closeConfirmation} 
         onConfirm={handleDelete} 
+        message="¿Estás seguro que deseas eliminar este patiente?, esta acción no se puede deshacer."
       />
     </div>
   );

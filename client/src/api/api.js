@@ -67,3 +67,7 @@ export const editDate = async (data) => {
     return response.data;
 }
 
+export const getUsers = async () => {
+    const response = await axios.post(`${api}/users`);
+    return response.data;
+}

@@ -69,8 +69,6 @@ const InventoryReport = () => {
       index + 1,
       item.Producto,
       item.Categoria,
-      item.Descripcion,
-      item.Distribuidor,
       new Date(item.Caducidad).toLocaleDateString(),
       item.Cantidad,
     ]);
@@ -78,7 +76,7 @@ const InventoryReport = () => {
     // Generar tabla
     pdf.autoTable({
       startY: 30,
-      head: [["ID", "Producto", "Categoría", "Descripción", "Distribuidor", "Caducidad", "Cantidad"]],
+      head: [["ID", "Producto", "Categoría","Caducidad", "Cantidad"]],
       body: rows,
       theme: "grid",
       styles: {
@@ -255,8 +253,6 @@ const InventoryReport = () => {
               <th>ID</th>
               <th>Producto</th>
               <th>Categoría</th>
-              <th>Descripción</th>
-              <th>Distribuidor</th>
               <th>Caducidad</th>
               <th>Cantidad</th>
             </tr>
@@ -267,8 +263,6 @@ const InventoryReport = () => {
                 <td>{index + 1 + indexOfFirstItem}</td>
                 <td>{item.Producto}</td>
                 <td>{item.Categoria}</td>
-                <td>{item.Descripcion}</td>
-                <td>{item.Distribuidor}</td>
                 <td>{new Date(item.Caducidad).toLocaleDateString()}</td>
                 <td>{item.Cantidad}</td>
               </tr>

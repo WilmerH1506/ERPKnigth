@@ -24,7 +24,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 .modal-header h2 {
@@ -39,7 +39,7 @@
 }
 
 .form-group {
-  margin-bottom: 8px;
+  margin-bottom: 3px;
 }
 
 .form-group label {
@@ -50,11 +50,12 @@
 
 .form-group input,
 .form-group select {
-  width: 90%;
+  width: calc(100% - 30px);
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
+  box-sizing: border-box;
 }
 
 .form-group select {
@@ -71,7 +72,38 @@
 .modal-footer {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 12px;
+}
+
+.error-container {
+  position: absolute;
+  top: 50%;
+  right: 0px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.error-container span {
+  font-size: 18px;
+  color: #d9534f;
+  position: relative;
+}
+
+.error-container span:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #d9534f;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
 }
 
 .submit-button {
