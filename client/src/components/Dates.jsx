@@ -53,7 +53,8 @@ const Dates = () => {
     const filtered = dates.filter(
       (date) => 
         date.Paciente.toLowerCase().includes(term.toLowerCase()) ||
-        date.Odontologo.toLowerCase().includes(term.toLowerCase())
+        date.Odontologo.toLowerCase().includes(term.toLowerCase()) ||
+        date.Estado.toLowerCase().includes(term.toLowerCase())
     );
     setFilteredDates(filtered);
     setCurrentPage(1);    
@@ -313,7 +314,7 @@ const Dates = () => {
           <div className="search-bar">
             <input
               type="text"
-              placeholder="Buscar por Odontólogo o paciente"
+              placeholder="Buscar por Odontólogo, paciente o estado"
               value={searchTerm}
               onChange={handleSearch}
             />
