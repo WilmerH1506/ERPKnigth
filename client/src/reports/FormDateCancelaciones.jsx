@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./FormDate.css";
+import "./FormDateHours.css";
 
-const SelectDateForReports = () => {
+const SelectDateForDateCanceled = () => {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const SelectDateForReports = () => {
     }
 
     const formattedDate = `${month}-${year}`;
-    navigate(`/reporte-servicios/${formattedDate}`); 
+    navigate(`/reporte-cancelaciones/${formattedDate}`); 
   };
 
   const handleGoBack = () => {
@@ -24,17 +24,17 @@ const SelectDateForReports = () => {
   };
 
   return (
-    <div className="select-date-reports-container">
-      <h1 className="select-date-reports-title">Seleccionar Fecha para Reporte de Ingresos por servicios</h1>
-      <form onSubmit={handleSubmit} className="select-date-reports-form">
-        <div className="select-date-reports-group">
-          <label htmlFor="month" className="select-date-reports-label">Mes:</label>
+    <div className="free-hours-report-container">
+      <h1 className="free-hours-report-title">Seleccionar Fecha para Reporte de Cancelaciones de citas</h1>
+      <form onSubmit={handleSubmit} className="free-hours-report-form">
+        <div className="free-hours-report-group">
+          <label htmlFor="month" className="free-hours-report-label">Mes:</label>
           <select
             id="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
             required
-            className="select-date-reports-input"
+            className="free-hours-report-input"
           >
             <option value="">Selecciona un mes</option>
             <option value="01">Enero</option>
@@ -52,8 +52,8 @@ const SelectDateForReports = () => {
           </select>
         </div>
 
-        <div className="select-date-reports-group">
-          <label htmlFor="year" className="select-date-reports-label">Año:</label>
+        <div className="free-hours-report-group">
+          <label htmlFor="year" className="free-hours-report-label">Año:</label>
           <input
             id="year"
             type="number"
@@ -63,20 +63,20 @@ const SelectDateForReports = () => {
             onChange={(e) => setYear(e.target.value)}
             placeholder="Ejemplo: 2024"
             required
-            className="select-date-reports-input"
+            className="free-hours-report-input"
           />
         </div>
 
-        <div className="select-date-reports-group">
-          <button type="submit" className="select-date-reports-button">
+        <div className="free-hours-report-group">
+          <button type="submit" className="free-hours-report-button">
             Generar Reporte
           </button>
         </div>
 
-        <div className="select-date-reports-group">
+        <div className="free-hours-report-group">
           <button
             type="button"
-            className="select-date-reports-back-button"
+            className="free-hours-report-back-button"
             onClick={handleGoBack}
           >
         Regresar
@@ -87,4 +87,4 @@ const SelectDateForReports = () => {
   );
 };
 
-export default SelectDateForReports;
+export default SelectDateForDateCanceled;

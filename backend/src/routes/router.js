@@ -39,7 +39,7 @@ router.put('/editproduct',editProduct);
 
 router.get('/dates',dates)
 
-router.get('/dates/canceled',DatesCanceled)
+router.get('/dates/canceled/:date',DatesCanceled)
 
 router.post('/dates/especificDate', getDate )
 

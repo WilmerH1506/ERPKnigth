@@ -68,13 +68,19 @@ const FreeHoursReport = () => {
       { occupied: 0, free: 0 }
     );
 
-  const itemsToShow = data.map((doctorData) => ({
-    ...doctorData,
-    dates: doctorData.dates.slice(
-      (currentPage - 1) * itemsPerPage,
-      currentPage * itemsPerPage
-    ),
-  }));
+    const itemsToShow = data.map((doctorData) => ({
+      ...doctorData,
+      dates: doctorData.dates.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      ).map((day) => ({
+        ...day,
+        occupiedHours: Array.from({ length: 10 }, (_, i) => {
+          const hour = `${8 + i}:00`;
+          return day.freeHours.includes(hour) ? null : hour;
+        }).filter(Boolean),
+      })),
+    }));
 
   const handleDownloadPDF = async () => {
     const container = document.getElementById("inventory-report-container");
@@ -127,7 +133,8 @@ const FreeHoursReport = () => {
             <th>Fecha</th>
             <th>Horas Libres</th>
             <th>Horas Ocupadas</th>
-            <th>Horarios Disponibles</th> {/* Nueva columna */}
+            <th>Horarios Libres</th>
+            <th>Horarios Ocupados</th> {/* Nueva columna */}
           </tr>
         </thead>
         <tbody>
@@ -135,10 +142,11 @@ const FreeHoursReport = () => {
             doctorData.dates.map((day, dayIndex) => (
               <tr key={`${doctorIndex}-${dayIndex}`}>
                 <td>{dayIndex === 0 ? doctorData.doctor : ""}</td>
-                <td>{formatDate(day.date)}</td> {/* Formateamos la fecha */}
+                <td>{formatDate(day.date)}</td>
                 <td>{day.freeHours.length}</td>
-                <td>{10 - day.freeHours.length}</td>
-                <td>{day.freeHours.join(", ")}</td> {/* Nueva celda */}
+                <td>{day.occupiedHours.length}</td>
+                <td>{day.freeHours.join(", ")}</td>
+                <td>{day.occupiedHours.join(", ")}</td> {/* Nueva celda */}
               </tr>
             ))
           )}

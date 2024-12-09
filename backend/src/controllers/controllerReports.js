@@ -41,11 +41,21 @@ export const DatesperPatient = async (req, res) => {
 };
 
 export const DatesCanceled = async (req, res) => {
+    const { date } = req.params;
+    const [month, year] = date.split('-').map(Number);
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+
     try {
-        const dates = await Dates.find({Estado: 'Cancelada'});
+        const dates = await Dates.find({
+            Estado: "Cancelada",
+            Fecha: { $gte: startDate, $lte: endDate },
+        });
+
         res.status(200).json(dates);
-    } catch (error) {
-        console.error('Error al obtener las citas:', error);
+    }
+    catch (error) {
+        console.error('Error al obtener las citas canceladas:', error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -78,15 +88,19 @@ export const serviceRevenue = async (req, res) => {
             if (!treatment) return acc; 
 
             const price = Number(treatment.Precio);
+            const quantity = Number(date.Cantidad) || 0;
+
             if (!acc[date.Tratamiento]) {
                 acc[date.Tratamiento] = {
                     total: 0,
+                    procedimientos: 0,
                     pacientes: [],
                     fechas: [],
                 };
             }
 
-            acc[date.Tratamiento].total += price;
+            acc[date.Tratamiento].total += price * quantity; 
+            acc[date.Tratamiento].procedimientos += quantity; 
             acc[date.Tratamiento].pacientes.push(date.Paciente);
             acc[date.Tratamiento].fechas.push(date.Fecha);
 
@@ -167,7 +181,8 @@ export const PatientsDropouts = async (req, res) => {
                   _id: "$Paciente", 
                   lastAppointment: { $max: "$Fecha" }, 
                   treatment: { $first: "$Tratamiento" }, 
-                  description: { $first: "$Descripcion" }, 
+                  description: { $first: "$Descripcion" },
+                  Odontologo: { $first: "$Odontologo"}, 
               },
           },
       ]);
@@ -194,9 +209,11 @@ export const PatientsDropouts = async (req, res) => {
           if (lastAppointment) {
               dropouts.push({
                   Nombre: patient.Nombre,
+                  Correo: patient.Correo || "No disponible",
                   Tratamiento: lastAppointment.Tratamiento,
                   Descripcion: lastAppointment.Descripcion,
                   Fecha: lastAppointment.Fecha,
+                  Odontologo: lastAppointment.Odontologo,
               });
           }
       }
@@ -204,8 +221,10 @@ export const PatientsDropouts = async (req, res) => {
       for (let patient of patientsWithoutRecentAppointments) {
           dropouts.push({
               Nombre: patient._id,
+              Correo: patient.Correo || "No disponible",
               Tratamiento: patient.treatment,
               Descripcion: patient.description,
+              Odontologo: patient.Odontologo,
               Fecha: patient.lastAppointment,
           });
       }
@@ -328,17 +347,24 @@ export const FreeHoursPerDoctor = async (req, res) => {
       const doctor = appointment.Odontologo;
 
       if (!acc[doctor]) acc[doctor] = {};
-      if (!acc[doctor][dateKey]) acc[doctor][dateKey] = [];
+      if (!acc[doctor][dateKey]) acc[doctor][dateKey] = new Set();
 
-      acc[doctor][dateKey].push(appointment.Hora_Ingreso);
+      const [startHour, startMinute] = appointment.Hora_Ingreso.split(":").map(Number);
+      const [endHour, endMinute] = appointment.Hora_Salida.split(":").map(Number);
+
+      for (let hour = startHour; hour < endHour; hour++) {
+        acc[doctor][dateKey].add(`${hour}:00`);
+      }
+      if (endMinute > 0) {
+        acc[doctor][dateKey].add(`${endHour}:00`);
+      }
+
       return acc;
     }, {});
 
     const result = doctors.map((doctor) => {
       const dates = monthDates.map((date) => {
-        const busyHours = groupedAppointments[doctor]?.[date]?.map((hour) =>
-          hour.startsWith("0") ? hour.slice(1) : hour
-        ) || [];
+        const busyHours = Array.from(groupedAppointments[doctor]?.[date] || []);
         const freeHours = workingHours.filter(hour => !busyHours.includes(hour));
         return { date, freeHours };
       });

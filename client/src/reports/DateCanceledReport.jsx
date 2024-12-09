@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {  useParams ,useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jsPDF } from "jspdf";
 import logo from '../assets/Logo.jpg';
@@ -7,17 +7,26 @@ import "jspdf-autotable";
 import "./DateCanceledReport.css";
 
 const DateCanceledReport = () => {
+  const {date } = useParams();
   const [datesData, setDatesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Número de elementos por página
+  const itemsPerPage = 5; 
   const navigate = useNavigate();
+  const month = date.split("-")[0];
+  
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  const monthName = months[parseInt(month) - 1];
 
   useEffect(() => {
     const fetchCanceledDates = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/dates/canceled");
+        const response = await axios.get(`http://localhost:3000/api/dates/canceled/${date}`);
         const orderedDates = response.data.sort((a, b) => new Date(a.Fecha) - new Date(b.Fecha));
         setDatesData(orderedDates);
         setLoading(false);
@@ -33,7 +42,7 @@ const DateCanceledReport = () => {
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter"); // Formato carta
-    const tableStartY = 30;
+    const tableStartY = 36;
     const totalPagesExp = "{total_pages_count_string}";
   
     // Encabezado del documento
@@ -42,12 +51,14 @@ const DateCanceledReport = () => {
     doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
     doc.setFontSize(12);
     doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
+    doc.text(`Mes del reporte: ${monthName}`, 14, 32);
   
     // Configuración de columnas y datos
     const columns = [
       { header: "Citas ID", dataKey: "id" },
       { header: "Fecha", dataKey: "Fecha" },
       { header: "Paciente", dataKey: "Paciente" },
+      { header: "Odontologo", dataKey: "Odontologo" },
       { header: "Tratamiento", dataKey: "Tratamiento" },
       { header: "Descripción", dataKey: "Descripcion" },
     ];
@@ -57,6 +68,7 @@ const DateCanceledReport = () => {
       Fecha: new Date(date.Fecha).toLocaleDateString(),
       Paciente: date.Paciente,
       Tratamiento: date.Tratamiento,
+      Odontologo: date.Odontologo,
       Descripcion: date.Descripcion,
     }));
   
@@ -148,7 +160,9 @@ const DateCanceledReport = () => {
 
         <div className="date-canceled-info">
           <p><strong>Fecha de emisión:</strong> {new Date().toLocaleDateString()}</p>
+          <p><strong>Mes del reporte:</strong> {monthName}</p>
         </div>
+
 
         <table className="date-canceled-tabla">
           <thead>
@@ -156,6 +170,7 @@ const DateCanceledReport = () => {
               <th>Citas ID</th>
               <th>Fecha</th>
               <th>Paciente</th>
+              <th>Odontologo</th>
               <th>Tratamiento</th>
               <th>Descripción</th>
             </tr>
@@ -166,6 +181,7 @@ const DateCanceledReport = () => {
                 <td>{index + 1 + indexOfFirstItem}</td>
                 <td>{new Date(date.Fecha).toLocaleDateString()}</td>
                 <td>{date.Paciente}</td>
+                <td>{date.Odontologo}</td>
                 <td>{date.Tratamiento}</td>
                 <td>{date.Descripcion}</td>
               </tr>

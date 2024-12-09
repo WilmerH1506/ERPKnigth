@@ -13,54 +13,64 @@ const ReportesServicios = () => {
   const itemsPerPage = 5; 
   const navigate = useNavigate();
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const month = date.split("-")[0];
+  const year = date.split("-")[1];
+
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  const monthName = months[parseInt(month) - 1];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(`http://localhost:3000/api/services/${date}`);
         const data = await response.json();
-  
+    
         if (data.revenue) {
           let revenueSum = 0; 
           const formattedData = Object.entries(data.revenue)
-            .flatMap(([servicio, details]) =>
-              details.pacientes.map((paciente, i) => {
-                const costo = details.total / details.pacientes.length;
-                revenueSum += costo;
+            .flatMap(([servicio, details]) => {
+              const costoPorProcedimiento = details.total / details.procedimientos; // Costo unitario
+              return details.pacientes.map((paciente, i) => {
+                const cantidad = details.procedimientos; // Procedimientos totales por servicio
+                const total = costoPorProcedimiento * cantidad;
+                revenueSum += total;
                 return {
                   servicio,
                   paciente,
-                  costo,
+                  costo: costoPorProcedimiento,
                   fecha: details.fechas[i],
-                  cantidad: 1,
-                  total: costo,
+                  cantidad,
+                  total,
                 };
-              })
-            );
-  
+              });
+            });
+    
           const orderPerPrice = formattedData.sort((a, b) => b.total - a.total);
-  
+    
           const orderedDataWithIds = orderPerPrice.map((item, index) => ({
             ...item,
             id: index + 1,
           }));
-  
+    
           setReportData(orderedDataWithIds);
           setTotalRevenue(revenueSum);
         }
-  
+    
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
-  
     fetchData();
   }, [date]);
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter"); // Formato carta
-    const tableStartY = 35;
+    const tableStartY = 40;
     const totalPagesExp = "{total_pages_count_string}";
   
     // Configuración del título y encabezado
@@ -69,13 +79,14 @@ const ReportesServicios = () => {
     doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
     doc.setFontSize(12);
     doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
+    doc.text(`Mes del reporte: ${monthName}`, 14, 32);
     doc.text(
-      `Total generado: ${totalRevenue.toLocaleString("es-HN", {
+      `Ingreso generado: ${totalRevenue.toLocaleString("es-HN", {
         style: "currency",
         currency: "HNL",
       })}`,
       14,
-      32
+      37
     );
   
     // Configuración de columnas y filas
@@ -84,7 +95,7 @@ const ReportesServicios = () => {
       { header: "Nombre Paciente", dataKey: "paciente" },
       { header: "Servicio", dataKey: "servicio" },
       { header: "Fecha", dataKey: "fecha" },
-      { header: "Costo", dataKey: "costo" },
+      { header: "Ingreso", dataKey: "costo" },
       { header: "Cantidad", dataKey: "cantidad" },
       { header: "Total", dataKey: "total" },
     ];
@@ -176,7 +187,7 @@ const ReportesServicios = () => {
     <div>
       <div className="buttons-container">
         <button className="btn exit-btn" onClick={() => navigate(-1)}>
-          ← Regresar
+          ← Salir
         </button>
         <button className="btn save-btn" onClick={handleDownloadPDF}>
           Guardar como PDF
@@ -188,13 +199,17 @@ const ReportesServicios = () => {
           <span className="free-report-title">Reporte de servicios</span>
           <img src={logo} alt="Logo" className="free-logo" />
       </h1>
-        <p>Fecha de emisión: {new Date().toLocaleDateString("es-ES")}</p>
         <p>
-            Total generado:{" "}
-            {totalRevenue.toLocaleString("es-HN", {
-              style: "currency",
-              currency: "HNL",
-            })}
+          <strong>Fecha de reporte:</strong> {new Date().toLocaleDateString()}
+        </p>
+        <p>
+          <strong>Mes del reporte:</strong> {monthName}
+        </p>
+        <p>
+          <strong>Ingreso generado:</strong> {totalRevenue.toLocaleString("es-HN", {
+            style: "currency",
+            currency: "HNL",
+          })}
         </p>
 
         <table className="reportes-tabla">
@@ -204,7 +219,7 @@ const ReportesServicios = () => {
               <th>Nombre Paciente</th>
               <th>Servicio</th>
               <th>Fecha</th>
-              <th>Costo</th>
+              <th>Ingreso</th>
               <th>Cantidad</th>
               <th>Total</th>
             </tr>

@@ -4,11 +4,13 @@ import Patients from "./Patients";
 import Dates from "./Dates";
 import Inventory from "./Inventory";
 import Reports from "./Reports";
+import PatientSelectionPage from "../reports/FormPatient";
 import ReporteCitas from "../reports/PatientReport";
 import ReporteCancelaciones from "../reports/DateCanceledReport";
 import ReportesServicios from "../reports/RevenueReport";
 import SelectDateForReports from "../reports/FormDate";
 import SelectDateForReportsComplaints from "../reports/FormDateQuejas";
+import SelectDateForDateCanceled from "../reports/FormDateCancelaciones";
 import ReporteQuejas from "../reports/ComplaintsReport";
 import ReporteAbandono from "../reports/DropoutsReport";
 import ReporteInventario from "../reports/InventoryReport";
@@ -91,7 +93,7 @@ const App = () => {
               }
             />
             <Route
-              path="/reporte-cancelaciones"
+              path="/reporte-cancelaciones/:date"
               element={
                 isAuthenticated ? (
                   <ReporteCancelaciones />
@@ -111,10 +113,30 @@ const App = () => {
               }
             />
             <Route
+              path="/seleccionar-paciente"
+              element={
+                isAuthenticated ? (
+                  <PatientSelectionPage />
+                ) : (
+                  <LoginPage onLogin={handleLogin} />
+                )
+              }
+            />
+            <Route
               path="/seleccionar-fecha-quejas"
               element={
                 isAuthenticated ? (
                   <SelectDateForReportsComplaints />
+                ) : (
+                  <LoginPage onLogin={handleLogin} />
+                )
+              }
+            />
+            <Route
+              path="/seleccionar-fecha-cancelaciones"
+              element={
+                isAuthenticated ? (
+                  <SelectDateForDateCanceled />
                 ) : (
                   <LoginPage onLogin={handleLogin} />
                 )

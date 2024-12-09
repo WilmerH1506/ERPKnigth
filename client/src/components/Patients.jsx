@@ -145,7 +145,7 @@ const Patients = () => {
 
       const isAvailable = await validateDateDisponibility(data);
       if (!isAvailable) {
-      return toast.error('La fecha y hora seleccionadas no están disponibles');
+      return toast.error('La fecha y hora seleccionadas no están disponibles con el odontólogo seleccionado');
       }
 
       await registerDate(data);
@@ -183,7 +183,7 @@ const Patients = () => {
       placeholder: 'Ingrese el nombre',
       validation: 
       { required: 'Campo requerido',
-        length: { value: 3, message: 'El nombre debe tener al menos 3 caracteres' },
+        minLength: { value: 3, message: 'El nombre debe tener al menos 3 caracteres' },
         pattern: { value: /^[a-zA-Z\s]*$/, message: 'El nombre no puede contener números' },
       },
     },
@@ -249,11 +249,12 @@ const Patients = () => {
   .split('T')[0];
 
   const validateDateDisponibility = async (data) => {
-    const { Fecha, Hora_Ingreso, Odontologo} = data;
+    const { Fecha, Hora_Ingreso,Hora_Salida, Odontologo} = data;
     try {
       const response = await axios.post('http://localhost:3000/api/dates/especificDate', {
           Fecha,
           Hora_Ingreso,
+          Hora_Salida,
           Odontologo,
       }
       );

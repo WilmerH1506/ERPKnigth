@@ -13,6 +13,14 @@ const ReporteQuejas = () => {
   const [currentPage, setCurrentPage] = useState(1); 
   const itemsPerPage = 5; 
   const navigate = useNavigate();
+  const month = date.split("-")[0];
+  
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  const monthName = months[parseInt(month) - 1];
 
   useEffect(() => {
     const fetchComplaints = async () => {
@@ -34,7 +42,7 @@ const ReporteQuejas = () => {
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF("p", "mm", "letter"); // Formato carta
-    const tableStartY = 30;
+    const tableStartY = 38;
     const totalPagesExp = "{total_pages_count_string}";
   
     // Encabezado del documento
@@ -42,7 +50,8 @@ const ReporteQuejas = () => {
     doc.text("Reporte de Quejas", 14, 20);
     doc.addImage(logo, "JPEG", 180, 10, 20, 20); // Logo
     doc.setFontSize(12);
-    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 26);
+    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-ES")}`, 14, 28);
+    doc.text(`Mes generado: ${monthName}`, 14, 34);
   
     // Configuración de columnas y datos
     const columns = [
@@ -137,7 +146,7 @@ const ReporteQuejas = () => {
     <div>
       <div className="complaints-buttons-container">
         <button className="btn exit-btn" onClick={handleGoBack}>
-          ← Regresar
+          ← Salir
         </button>
         <button className="btn save-btn" onClick={handleDownloadPDF}>
           Guardar como PDF
@@ -149,7 +158,12 @@ const ReporteQuejas = () => {
         <span className="free-report-title">Reporte de quejas</span>
         <img src={logo} alt="Logo" className="free-logo" />
       </h1>
-        <p>Fecha de emisión: {new Date().toLocaleDateString("es-ES")}</p>
+        <p>
+          <strong>Fecha de emisión:</strong> {new Date().toLocaleDateString("es-ES")}
+        </p>
+        <p>
+          <strong>Mes generado:</strong> {monthName}
+        </p>
 
         <table className="complaints-tabla">
           <thead>

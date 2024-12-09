@@ -61,14 +61,27 @@ export const EditDate = async (req,res) =>
     }
 }
 
-export const getDate = async (req,res) => {
+export const getDate = async (req, res) => {
    try {
-      const {Fecha, Hora_Ingreso,Odontologo} = req.body
-      const Estado = 'Pendiente'
-      const date = await Dates.find({Fecha, Hora_Ingreso, Estado,Odontologo})
-      
-      res.status(200).json(date)
+      const { Fecha, Hora_Ingreso, Hora_Salida, Odontologo } = req.body;
+      const Estado = 'Pendiente';
+
+      // Buscar citas en la misma fecha con solapamiento en horario
+      const date = await Dates.find({
+         Fecha,
+         Odontologo,
+         Estado,
+         $or: [
+            { 
+               Hora_Ingreso: { $lt: Hora_Salida }, // La cita inicia antes de que termine la nueva cita
+               Hora_Salida: { $gt: Hora_Ingreso }  // Y termina después de que inicie la nueva cita
+            }
+         ]
+      });
+
+      // Si el array está vacío, no hay solapamiento y el horario está disponible
+      res.status(200).json(date);
    } catch (error) {
-      res.status(500).json({message: error.message})
+      res.status(500).json({ message: error.message });
    }
-}
+};

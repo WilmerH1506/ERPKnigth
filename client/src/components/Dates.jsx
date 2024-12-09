@@ -107,10 +107,6 @@ const Dates = () => {
           return toast.error(validation);
         }
 
-        const isAvailable = await validateDateDisponibility(data);
-        if (!isAvailable) {
-          return toast.error('La fecha y hora seleccionada ya está ocupada');
-        }
         const updatedDate = await editDate({ ...data, _id: currentDate._id });
         setDates(
           dates.map((date) => (date._id === updatedDate._id ? updatedDate : date))
@@ -195,27 +191,6 @@ const Dates = () => {
   
     return true; 
   };
-
-  const validateDateDisponibility = async (data) => {
-    const { Fecha, Hora_Ingreso, Odontologo} = data;
-    try {
-      const response = await axios.post('http://localhost:3000/api/dates/especificDate', {
-          Fecha,
-          Hora_Ingreso,
-          Odontologo,
-      }
-      );
-
-      if (!response.data) {
-        throw new Error('Error al consultar la disponibilidad de la fecha');
-      }
-      
-      return response.data.length === 0;
-    } catch (error) {
-      console.error('Error al validar la disponibilidad de la fecha:', error);
-      return false; 
-    }
-  }
 
   const inputs = [
     {

@@ -96,7 +96,7 @@
   }
 
     .inventory-report-button-back {
-        background-color: #f44336;
+        background-color: #15999B;
         color: white;
         padding: 10px 20px;
         font-size: 14px;
@@ -110,5 +110,5 @@
   
   .inventory-report-button-back:hover,
   .inventory-report-button-download:hover {
-    background-color: #0056b3;
+    opacity: 0.8;
   }

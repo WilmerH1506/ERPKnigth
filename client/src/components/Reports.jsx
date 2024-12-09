@@ -4,8 +4,6 @@ import './Reports.css';
 import { FaUserMd, FaCalendarTimes, FaChartLine, FaClock, FaTimesCircle, FaDollarSign, FaBox, FaComment } from 'react-icons/fa';
 
 const ClinicReports = () => {
-  const [patients, setPatients] = useState([]);
-  const [showPatientSelection, setShowPatientSelection] = useState(false);
   const navigate = useNavigate(); 
 
   useEffect(() => {
@@ -43,11 +41,11 @@ const ClinicReports = () => {
 
   const handleCardClick = (reportType) => {
     if (reportType === 'Citas por paciente') {
-      setShowPatientSelection(true);
+      navigate('/seleccionar-paciente');
     }
 
     if (reportType === 'Cancelaciones') {
-      navigate('/reporte-cancelaciones');
+      navigate('/seleccionar-fecha-cancelaciones');
     }
 
     if (reportType === 'Ingresos') {
@@ -75,14 +73,6 @@ const ClinicReports = () => {
     }
   };
 
-  const handlePatientSelect = (patientId) => {
-    setShowPatientSelection(false);
-    if (patientId) {
-      navigate(`/reporte-citas/${patientId}`); 
-    } else {
-      console.error("El ID del paciente es undefined");
-    }
-  };
 
   return (
     <div className="clinic-reports">
@@ -105,22 +95,6 @@ const ClinicReports = () => {
         </div>
       ))}
 
-      
-      {showPatientSelection && (
-        <div className="patient-selection-modal">
-          <div className="modal-content">
-            <h2>Seleccionar Paciente</h2>
-            <ul className="patient-list">
-              {patients.map((patient) => (
-                <li key={patient._id} onClick={() => handlePatientSelect(patient._id)}>
-                  {patient.Nombre}
-                </li>
-              ))}
-            </ul>
-            <button className="close-btn" onClick={() => setShowPatientSelection(false)}>Cerrar</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

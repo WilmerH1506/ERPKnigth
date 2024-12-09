@@ -44,21 +44,23 @@ const ReporteAbandono = () => {
     doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 26);
   
     // Configuración de columnas y datos
-    const columns = [
-      { header: "ID", dataKey: "id" },
-      { header: "Nombre del Paciente", dataKey: "Nombre" },
-      { header: "Tratamiento", dataKey: "Tratamiento" },
-      { header: "Descripción", dataKey: "Descripcion" },
-      { header: "Fecha", dataKey: "Fecha" },
-    ];
-  
     const rows = dropoutsData.map((dropout, index) => ({
       id: index + 1,
       Nombre: dropout.Nombre,
       Tratamiento: dropout.Tratamiento,
       Descripcion: dropout.Descripcion,
+      Correo: dropout.Correo || "No disponible", // Mostrar correo o "No disponible"
       Fecha: new Date(dropout.Fecha).toLocaleDateString(),
     }));
+    
+    const columns = [
+      { header: "ID", dataKey: "id" },
+      { header: "Nombre del Paciente", dataKey: "Nombre" },
+      { header: "Tratamiento", dataKey: "Tratamiento" },
+      { header: "Descripción", dataKey: "Descripcion" },
+      { header: "Correo", dataKey: "Correo" },
+      { header: "Fecha", dataKey: "Fecha" },
+    ];
   
     // Generar tabla con pie de página
     doc.autoTable({
@@ -158,20 +160,22 @@ const ReporteAbandono = () => {
               <th>Nombre del Paciente</th>
               <th>Tratamiento</th>
               <th>Descripción</th>
+              <th>Correo</th>
               <th>Fecha</th>
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((dropout, index) => (
-              <tr key={index}>
-                <td>{index + 1 + indexOfFirstItem}</td>
-                <td>{dropout.Nombre}</td>
-                <td>{dropout.Tratamiento}</td>
-                <td>{dropout.Descripcion}</td>
-                <td>{new Date(dropout.Fecha).toLocaleDateString()}</td>
-              </tr>
-            ))}
-          </tbody>
+              {currentItems.map((dropout, index) => (
+                <tr key={index}>
+                  <td>{index + 1 + indexOfFirstItem}</td>
+                  <td>{dropout.Nombre}</td>
+                  <td>{dropout.Tratamiento}</td>
+                  <td>{dropout.Descripcion}</td>
+                  <td>{dropout.Correo || "No disponible"}</td> {/* Mostrar correo o "No disponible" */}
+                  <td>{new Date(dropout.Fecha).toLocaleDateString()}</td>
+                </tr>
+              ))}
+           </tbody>
         </table>
 
         {/* Paginación */}
