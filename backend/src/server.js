@@ -8,7 +8,7 @@ const app = express();
 const PORT = 3000;
 
 
-mongoose.connect("mongodb+srv://wilmerhy2005:clinica123@crud-analisis.xa4ap.mongodb.net/?retryWrites=true&w=majority&appName=CRUD-Analisis")
+mongoose.connect("mongodb+srv://wilmerhy2005:ERPKNIGTH@crud-analisis.xa4ap.mongodb.net/")
 
 app.use(cors({ origin: '*'}));
 app.use(express.json());
