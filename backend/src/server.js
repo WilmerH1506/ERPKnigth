@@ -7,7 +7,6 @@ import cors from "cors";
 const app = express();
 const PORT = 3000;
 
-
 mongoose.connect("mongodb+srv://wilmerhy2005:ERPKNIGTH@crud-analisis.xa4ap.mongodb.net/")
 
 app.use(cors({ origin: '*'}));
